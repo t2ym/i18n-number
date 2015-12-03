@@ -1,0 +1,79 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <!-- Step 1: import the element to test -->
+    <link rel="import" href="../i18n-number.html">
+  </head>
+  <body>
+
+    <!-- You can use the document as a place to set up your fixtures. -->
+    <test-fixture id="i18n-number-fixture">
+      <template>
+        <i18n-number lang="en" options="{}" offset="1">123456.789</i18n-number>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('<i18n-number>', function() {
+
+        var el;
+
+        setup(function() {
+          el = fixture('i18n-number-fixture');
+        });
+
+        test('defines the "lang" property', function() {
+          assert.equal(el.lang, 'en');
+        });
+
+        test('defines the "options" property', function() {
+          assert.equal(JSON.stringify(el.options), '{}');
+        });
+
+        test('defines the "raw" property', function() {
+          assert.equal(el.raw, '123456.789');
+        });
+
+        test('defines the "offset" Number property', function() {
+          assert.equal(typeof el.offset, 'number');
+          assert.equal(el.offset, 1);
+        });
+
+        test('defines the "rawNumber" Number property', function() {
+          assert.equal(typeof el.rawNumber, 'number');
+          assert.equal(el.rawNumber, 123456.789);
+        });
+
+        test('defines the "number" Number property', function() {
+          assert.equal(typeof el.number, 'number');
+          assert.equal(el.number, 123455.789);
+        });
+
+        test('defines the "formatted" property', function() {
+          assert.equal(el.formatted, '123,455.789');
+        });
+
+        test('renders the formatted number', function() {
+          assert.equal(el.$.number.textContent, '123,455.789');
+        });
+
+      });
+    </script>
+
+  </body>
+</html>
