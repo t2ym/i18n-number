@@ -1,0 +1,235 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`<i18n-number>` is an interface element for Intl.NumberFormat 
+(http://www.ecma-international.org/ecma-402/1.0/#sec-11.1) object.
+If Intl.NumberFormat is unavailable, String.toLocaleString() is used as a fallback. 
+
+    <i18n-number lang="en"
+                 options='{ "style": "currency", "currency": "USD" }'
+                 offset="1"
+                 >123456.789</i18n-number>
+
+The element can be cooperatively used for UI localization with 
+`BehaviorsStore.I18nBehavior` and `<template-text>` element.
+
+The above example is rendered as follows.
+
+    $123,455.79
+
+@group I18nBehavior
+@element i18n-number
+@hero hero.svg
+@demo demo/index.html
+-->
+<dom-module id="i18n-number">
+  <template>
+    <span id="number"></span>
+  </template>
+  <script>
+  Polymer({
+    is: 'i18n-number',
+    
+    properties: {
+      /**
+       * The locale for the formatted number.
+       * The typical value is bound to `{{effectiveLang}}` when the containing element has
+       * `BehaviorsStore.I18nBehavior`.
+       */
+      lang: {
+        type: String,
+        observer: '_langChanged',
+        reflectToAttribute: true
+      },
+
+      /**
+       * Options object for Intl.NumberFormat 
+       * (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat)
+       */
+      options: {
+        type: Object,
+        observer: '_optionsChanged'
+      },
+
+      /**
+       * Raw string copied from textContent 
+       */
+      raw: {
+        type: String,
+        observer: '_rawChanged'
+      },
+
+      /**
+       * Offset for number
+       *
+       * Note: number = rawNumber - offset 
+       */
+      offset: {
+        type: Number,
+        value: 0,
+        observer: '_offsetChanged'
+      },
+
+      /**
+       * Raw number parsed from raw
+       */
+      rawNumber: {
+        type: Number,
+        notify: true
+      },
+
+      /**
+       * Number calculated from rawNumber and offset
+       */
+      number: {
+        type: Number,
+        notify: true
+      },
+
+      /**
+       * Formatted string rendered for UI
+       */
+      formatted: {
+        type: String,
+        notify: true
+      }
+    },
+
+    ready () {
+      this.textNode = Polymer.dom(this).childNodes[0];
+      if (this.textNode) {
+        this.observer = new MutationObserver(this._textMutated.bind(this));
+        this.observer.observe(this.textNode, { characterData: true });
+        //console.log('i18n-number: ready: raw = ' + this.textNode.data);
+        this.raw = this.textNode.data;
+      }
+    },
+
+    attached () {
+      if (this.textNode) {
+        //console.log('i18n-number: attached: raw = ' + this.textNode.data);
+        this.raw = this.textNode.data;
+      }
+    },
+
+    detached () {
+      if (this.textNode) {
+        this.observer.disconnect();
+      }
+    },
+
+    /**
+     * MutationObserver callback of the child text node to re-render on text mutations.
+     *
+     * @param {Array} mutations Array of MutationRecord (https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver).
+     */
+    _textMutated (mutations) {
+      mutations.forEach(function(mutation) {
+        switch (mutation.type) {
+        case 'characterData':
+          //console.log('i18n-number: _textMutated: raw = ' + mutation.target.data);
+          this.raw = mutation.target.data;
+          break;
+        default:
+          break;
+        }
+      }, this);
+    },
+
+    /**
+     * Observer of `raw` property to re-render the formatted number.
+     *
+     * @param {string} raw New raw number string.
+     */
+    _rawChanged (raw) {
+      if (this.textNode) {
+        //console.log('i18n-number: _rawChanged: raw = ' + raw);
+        this._render(this.lang, this.options, raw, this.offset);
+      }
+    },
+
+    /**
+     * Observer of `lang` property to re-render the formatted number.
+     *
+     * @param {string} lang New locale.
+     */
+    _langChanged (lang) {
+      if (this.textNode) {
+        //console.log('i18n-number: _langChanged: lang = ' + lang);
+        this._render(lang, this.options, this.raw, this.offset);
+      }
+    },
+
+    /**
+     * Observer of `options` property to re-render the formatted number.
+     *
+     * @param {Object} options New options for Intl.NumberFormat.
+     */
+    _optionsChanged (options) {
+      if (this.textNode) {
+        //console.log('i18n-number: _optionsChanged: options = ' + JSON.stringify(options));
+        this._render(this.lang, options, this.raw, this.offset);
+      }
+    },
+
+    /**
+     * Observer of `offset` property to re-render the formatted number.
+     *
+     * @param {number} offset New offset.
+     */
+    _offsetChanged (offset) {
+      if (this.textNode) {
+        //console.log('i18n-number: _offsetChanged: offset = ' + offset);
+        this._render(this.lang, this.options, this.raw, offset);
+      }
+    },
+
+    /**
+     * Formats the number
+     *
+     * @param {string} lang Locale for formatting.
+     * @param {Object} options Options for Intl.NumberFormat.
+     * @param {number} number Number to format.
+     * @return {string} Formatted number string.
+     */
+    _formatNumber (lang, options, number) {
+      if (!lang) {
+        lang = 'en';
+      }
+      if (Intl && Intl.NumberFormat) {
+        try {
+          return new Intl.NumberFormat(lang, options).format(number);
+        }
+        catch (e) {
+          return number.toLocaleString();
+        }
+      }
+      else {
+        return number.toLocaleString(lang, options);
+      }
+    },
+
+    /**
+     * Renders the formatted number
+     *
+     * @param {string} lang Locale for formatting.
+     * @param {Object} options Options for Intl.NumberFormat.
+     * @param {string} raw Raw number string.
+     * @param {number} offset Offset for number.
+     */
+    _render (lang, options, raw, offset) {
+      // TODO: rendering may be done redundantly on property initializations
+      raw = raw.trim();
+      if (!raw) {
+        //console.log('i18n-number: skipping _render as raw is null');
+        return;
+      }
+      this.rawNumber = Number(raw);
+      this.number = raw - offset;
+      this.formatted = this._formatNumber(lang, options, this.number);
+      this.$.number.textContent = this.formatted;
+      //console.log('i18n-number: _render ' + this.formatted);
+    }
+  });
+  </script>
+</dom-module>
