@@ -98,7 +98,7 @@ The above example is rendered as follows.
 
     DEFAULT_LANG: 'en',
 
-    ready () {
+    ready: function () {
       this.textNode = Polymer.dom(this).childNodes[0];
       if (this.textNode) {
         this.observer = new MutationObserver(this._textMutated.bind(this));
@@ -108,14 +108,14 @@ The above example is rendered as follows.
       }
     },
 
-    attached () {
+    attached: function () {
       if (this.textNode) {
         //console.log('i18n-number: attached: raw = ' + this.textNode.data);
         this.raw = this.textNode.data;
       }
     },
 
-    detached () {
+    detached: function () {
       if (this.textNode) {
         this.observer.disconnect();
       }
