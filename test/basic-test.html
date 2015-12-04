@@ -21,58 +21,275 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </head>
   <body>
 
-    <!-- You can use the document as a place to set up your fixtures. -->
-    <test-fixture id="i18n-number-fixture">
+    <test-fixture id="default">
+      <template>
+        <i18n-number></i18n-number>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="static">
       <template>
         <i18n-number lang="en" options="{}" offset="1">123456.789</i18n-number>
       </template>
     </test-fixture>
 
+    <test-fixture id="bound">
+      <template is="dom-template" id="bound-template">
+        <i18n-number lang="en" options="{}" offset="1">{{number}}</i18n-number>
+      </template>
+    </test-fixture>
+
     <script>
-      suite('<i18n-number>', function() {
+suite('<i18n-number>', function () {
 
-        var el;
+  suite('default values', function () {
+    var el;
 
-        setup(function() {
-          el = fixture('i18n-number-fixture');
-        });
+    setup(function () {
+      el = fixture('default');
+    });
 
-        test('defines the "lang" property', function() {
-          assert.equal(el.lang, 'en');
-        });
+    test('default lang property', function () {
+      assert.equal(el.lang, 'en', 'default lang is en');
+    });
 
-        test('defines the "options" property', function() {
-          assert.equal(JSON.stringify(el.options), '{}');
-        });
+    test('default options property', function () {
+      assert.isUndefined(el.options, 'default options is undefined');
+    });
 
-        test('defines the "raw" property', function() {
-          assert.equal(el.raw, '123456.789');
-        });
+    test('default raw property', function () {
+      assert.isUndefined(el.raw, 'default raw is undefined');
+    });
 
-        test('defines the "offset" Number property', function() {
-          assert.equal(typeof el.offset, 'number');
-          assert.equal(el.offset, 1);
-        });
+    test('default offset property', function () {
+      assert.isNumber(el.offset, 'offset is a number');
+      assert.equal(el.offset, 0, 'default offset is 0');
+    });
 
-        test('defines the "rawNumber" Number property', function() {
-          assert.equal(typeof el.rawNumber, 'number');
-          assert.equal(el.rawNumber, 123456.789);
-        });
+    test('default rawNumber property', function () {
+      assert.isUndefined(el.rawNumber, 'rawNumber is undefined when raw is null');
+    });
 
-        test('defines the "number" Number property', function() {
-          assert.equal(typeof el.number, 'number');
-          assert.equal(el.number, 123455.789);
-        });
+    test('default number property', function () {
+      assert.isUndefined(el.number, 'number is undefined when raw is null');
+    });
 
-        test('defines the "formatted" property', function() {
-          assert.equal(el.formatted, '123,455.789');
-        });
+    test('default formatted property', function () {
+      assert.isUndefined(el.formatted, 'formatted is undefined when raw is null');
+    });
+  });
 
-        test('renders the formatted number', function() {
-          assert.equal(el.$.number.textContent, '123,455.789');
-        });
+  var rawValue1 = '123456.789';
+  var formatted1_en = '123,455.789';
+  var formatted1_fr = '123\u00A0455,789';
+  var suites = [
+    { 
+      suite: 'static value', 
+      fixture: 'static', 
+      model: undefined, 
+      rawValue: rawValue1,
+      formatted: formatted1_en
+    },
+    { 
+      suite: 'bound value', 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      formatted: formatted1_en
+    },
+    { 
+      suite: 'change raw value', 
+      fixture: 'bound', 
+      model: { number: '987654.321' }, 
+      rawValue: rawValue1,
+      assign: { raw: rawValue1 },
+      formatted: formatted1_en
+    },
+    { 
+      suite: 'change lang value', 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      assign: { lang: 'fr' },
+      formatted: formatted1_fr
+    }
+  ];
 
+  suites.forEach(function (params) {
+
+    suite(params.suite, function () {
+      var el;
+      var rawValue = params.rawValue;
+      var fixtureElement;
+      var lang = params.assign && params.assign.lang ? params.assign.lang : 'en';
+      var updateModel = function (element, model) {
+        for (var p in model) {
+          element[p] = model[p];
+        }
+      }
+
+      setup(function () {
+        el = fixture(params.fixture, params.model);
       });
+
+      test('lang property from attribute', function () {
+        updateModel(el, params.assign);
+        assert.equal(el.lang, lang, 'lang is set');
+      });
+
+      test('options property from attribute', function () {
+        updateModel(el, params.assign);
+        assert.deepEqual(el.options, {}, 'options is an empty object');
+      });
+
+      test('textContent is set', function () {
+        updateModel(el, params.assign);
+        assert.equal(Polymer.dom(el).textContent, rawValue, 'textContent is ' + rawValue);
+      });
+
+      test('raw property is set', function () {
+        updateModel(el, params.assign);
+        assert.isString(el.raw, 'raw property is a string');
+        assert.equal(el.raw, rawValue, 'raw property is set as the raw value');
+      });
+
+      test('offset property from attribute', function () {
+        updateModel(el, params.assign);
+        assert.isNumber(el.offset, 'offset is a number');
+        assert.equal(el.offset, 1, 'offset is 1');
+      });
+
+      test('rawNumber property is set', function () {
+        updateModel(el, params.assign);
+        assert.isNumber(el.rawNumber, 'rawNumber is a number');
+        assert.equal(el.rawNumber, 123456.789, 'rawNumber is set');
+      });
+
+      test('number property is set', function () {
+        updateModel(el, params.assign);
+        assert.isNumber(el.number, 'number is a number');
+        assert.equal(el.number, 123455.789, 'number is set');
+      });
+
+      test('formatted property is set', function () {
+        updateModel(el, params.assign);
+        assert.isString(el.formatted, 'formatted is a string');
+        assert.equal(el.formatted, params.formatted);
+      });
+
+      test('renders the formatted number', function () {
+        updateModel(el, params.assign);
+        assert.equal(el.$.number.textContent, params.formatted);
+      });
+
+    });
+  });
+
+/*
+  suite('static value', function () {
+    var el;
+    var rawValue = '123456.789';
+
+    setup(function () {
+      el = fixture('static');
+    });
+
+    test('lang property from attribute', function () {
+      assert.equal(el.lang, 'en', 'lang is en');
+    });
+
+    test('options property from attribute', function () {
+      assert.deepEqual(el.options, {}, 'options is an empty object');
+    });
+
+    test('textContent is set', function () {
+      assert.equal(Polymer.dom(el).textContent, rawValue, 'textContent is ' + rawValue);
+    });
+
+    test('raw property is set', function () {
+      assert.isString(el.raw, 'raw property is a string');
+      assert.equal(el.raw, rawValue, 'raw property is set as the raw value');
+    });
+
+    test('offset property from attribute', function () {
+      assert.isNumber(el.offset, 'offset is a number');
+      assert.equal(el.offset, 1, 'offset is 1');
+    });
+
+    test('rawNumber property is set', function () {
+      assert.isNumber(el.rawNumber, 'rawNumber is a number');
+      assert.equal(el.rawNumber, 123456.789, 'rawNumber is set');
+    });
+
+    test('number property is set', function () {
+      assert.isNumber(el.number, 'number is a number');
+      assert.equal(el.number, 123455.789, 'number is set');
+    });
+
+    test('formatted property is set', function () {
+      assert.isString(el.formatted, 'formatted is a string');
+      assert.equal(el.formatted, '123,455.789');
+    });
+
+    test('renders the formatted number', function () {
+      assert.equal(el.$.number.textContent, '123,455.789');
+    });
+  });
+
+  suite('bound value', function () {
+    var el;
+    var boundTemplate;
+    var rawValue = '123456.789';
+
+    setup(function () {
+      el = fixture('bound', { number: rawValue });
+      boundTemplate = document.getElementById('bound-template');
+    });
+
+    test('lang property from attribute', function () {
+      assert.equal(el.lang, 'en', 'lang is en');
+    });
+
+    test('options property from attribute', function () {
+      assert.deepEqual(el.options, {}, 'options is an empty object');
+    });
+
+    test('textContent is set', function () {
+      assert.equal(Polymer.dom(el).textContent, rawValue, 'textContent is ' + rawValue);
+    });
+
+    test('raw property is set', function () {
+      assert.isString(el.raw, 'raw property is a string');
+      assert.equal(el.raw, rawValue, 'raw property is set as the raw value');
+    });
+
+    test('offset property from attribute', function () {
+      assert.isNumber(el.offset, 'offset is a number');
+      assert.equal(el.offset, 1, 'offset is 1');
+    });
+
+    test('rawNumber property is set', function () {
+      assert.isNumber(el.rawNumber, 'rawNumber is a number');
+      assert.equal(el.rawNumber, 123456.789, 'rawNumber is set');
+    });
+
+    test('number property is set', function () {
+      assert.isNumber(el.number, 'number is a number');
+      assert.equal(el.number, 123455.789, 'number is set');
+    });
+
+    test('formatted property is set', function () {
+      assert.isString(el.formatted, 'formatted is a string');
+      assert.equal(el.formatted, '123,455.789');
+    });
+
+    test('renders the formatted number', function () {
+      assert.equal(el.$.number.textContent, '123,455.789');
+    });
+
+  });
+*/
+});
     </script>
 
   </body>
