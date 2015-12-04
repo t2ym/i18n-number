@@ -38,6 +38,7 @@ The above example is rendered as follows.
        */
       lang: {
         type: String,
+        value: 'en',
         observer: '_langChanged',
         reflectToAttribute: true
       },
@@ -95,6 +96,8 @@ The above example is rendered as follows.
       }
     },
 
+    DEFAULT_LANG: 'en',
+
     ready () {
       this.textNode = Polymer.dom(this).childNodes[0];
       if (this.textNode) {
@@ -128,7 +131,9 @@ The above example is rendered as follows.
         switch (mutation.type) {
         case 'characterData':
           //console.log('i18n-number: _textMutated: raw = ' + mutation.target.data);
-          this.raw = mutation.target.data;
+          if (this.raw !== mutation.target.data) {
+            this.raw = mutation.target.data;
+          }
           break;
         default:
           break;
@@ -143,6 +148,9 @@ The above example is rendered as follows.
      */
     _rawChanged (raw) {
       if (this.textNode) {
+        if (raw !== this.textNode.data) {
+          this.textNode.data = raw;
+        }
         //console.log('i18n-number: _rawChanged: raw = ' + raw);
         this._render(this.lang, this.options, raw, this.offset);
       }
@@ -154,6 +162,10 @@ The above example is rendered as follows.
      * @param {string} lang New locale.
      */
     _langChanged (lang) {
+      if (!lang) {
+        this.lang = this.DEFAULT_LANG;
+        lang = this.lang;
+      }
       if (this.textNode) {
         //console.log('i18n-number: _langChanged: lang = ' + lang);
         this._render(lang, this.options, this.raw, this.offset);
@@ -194,7 +206,7 @@ The above example is rendered as follows.
      */
     _formatNumber (lang, options, number) {
       if (!lang) {
-        lang = 'en';
+        lang = this.DEFAULT_LANG;
       }
       if (Intl && Intl.NumberFormat) {
         try {
@@ -225,7 +237,7 @@ The above example is rendered as follows.
         return;
       }
       this.rawNumber = Number(raw);
-      this.number = raw - offset;
+      this.number = this.rawNumber - offset;
       this.formatted = this._formatNumber(lang, options, this.number);
       this.$.number.textContent = this.formatted;
       //console.log('i18n-number: _render ' + this.formatted);
