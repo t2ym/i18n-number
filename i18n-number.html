@@ -126,7 +126,7 @@ The above example is rendered as follows.
      *
      * @param {Array} mutations Array of MutationRecord (https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver).
      */
-    _textMutated (mutations) {
+    _textMutated: function (mutations) {
       mutations.forEach(function(mutation) {
         switch (mutation.type) {
         case 'characterData':
@@ -146,7 +146,7 @@ The above example is rendered as follows.
      *
      * @param {string} raw New raw number string.
      */
-    _rawChanged (raw) {
+    _rawChanged: function (raw) {
       if (this.textNode) {
         if (raw !== this.textNode.data) {
           this.textNode.data = raw;
@@ -161,7 +161,7 @@ The above example is rendered as follows.
      *
      * @param {string} lang New locale.
      */
-    _langChanged (lang) {
+    _langChanged: function (lang) {
       if (!lang) {
         this.lang = this.DEFAULT_LANG;
         lang = this.lang;
@@ -177,7 +177,7 @@ The above example is rendered as follows.
      *
      * @param {Object} options New options for Intl.NumberFormat.
      */
-    _optionsChanged (options) {
+    _optionsChanged: function (options) {
       if (this.textNode) {
         //console.log('i18n-number: _optionsChanged: options = ' + JSON.stringify(options));
         this._render(this.lang, options, this.raw, this.offset);
@@ -189,7 +189,7 @@ The above example is rendered as follows.
      *
      * @param {number} offset New offset.
      */
-    _offsetChanged (offset) {
+    _offsetChanged: function (offset) {
       if (this.textNode) {
         //console.log('i18n-number: _offsetChanged: offset = ' + offset);
         this._render(this.lang, this.options, this.raw, offset);
@@ -204,7 +204,7 @@ The above example is rendered as follows.
      * @param {number} number Number to format.
      * @return {string} Formatted number string.
      */
-    _formatNumber (lang, options, number) {
+    _formatNumber: function (lang, options, number) {
       if (!lang) {
         lang = this.DEFAULT_LANG;
       }
@@ -229,7 +229,7 @@ The above example is rendered as follows.
      * @param {string} raw Raw number string.
      * @param {number} offset Offset for number.
      */
-    _render (lang, options, raw, offset) {
+    _render: function (lang, options, raw, offset) {
       // TODO: rendering may be done redundantly on property initializations
       raw = raw.trim();
       if (!raw) {
