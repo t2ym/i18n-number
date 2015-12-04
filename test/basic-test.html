@@ -80,14 +80,25 @@ suite('<i18n-number>', function () {
   });
 
   var rawValue1 = '123456.789';
+  var rawNumber1 = Number(rawValue1);
+  var offset1 = 1;
+  var offset2 = 2;
+  var number1 = rawNumber1 - offset1;
+  var number2 = rawNumber1 - offset2;
   var formatted1_en = '123,455.789';
   var formatted1_fr = '123\u00A0455,789';
+  var formatted1_USD = '$123,455.79';
+  var formatted1_offset = '123,454.789';
   var suites = [
     { 
       suite: 'static value', 
       fixture: 'static', 
       model: undefined, 
       rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
       formatted: formatted1_en
     },
     { 
@@ -95,6 +106,10 @@ suite('<i18n-number>', function () {
       fixture: 'bound', 
       model: { number: rawValue1 }, 
       rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
       formatted: formatted1_en
     },
     { 
@@ -102,6 +117,10 @@ suite('<i18n-number>', function () {
       fixture: 'bound', 
       model: { number: '987654.321' }, 
       rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
       assign: { raw: rawValue1 },
       formatted: formatted1_en
     },
@@ -110,8 +129,36 @@ suite('<i18n-number>', function () {
       fixture: 'bound', 
       model: { number: rawValue1 }, 
       rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
       assign: { lang: 'fr' },
       formatted: formatted1_fr
+    },
+    { 
+      suite: 'change options value', 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: { "style": "currency", "currency": "USD" },
+      assign: { options: { 'style': 'currency', 'currency': 'USD' } },
+      formatted: formatted1_USD
+    },
+    { 
+      suite: 'change offset value', 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset2,
+      rawNumber: rawNumber1,
+      number: number2,
+      options: {},
+      assign: { offset: offset2 },
+      formatted: formatted1_offset
     }
   ];
 
@@ -137,47 +184,48 @@ suite('<i18n-number>', function () {
         assert.equal(el.lang, lang, 'lang is set');
       });
 
-      test('options property from attribute', function () {
+      test('options property from attribute is set as ' 
+          + JSON.stringify(params.options), function () {
         updateModel(el, params.assign);
-        assert.deepEqual(el.options, {}, 'options is an empty object');
+        assert.deepEqual(el.options, params.options, 'options is set');
       });
 
-      test('textContent is set', function () {
+      test('textContent is set as ' + rawValue, function () {
         updateModel(el, params.assign);
         assert.equal(Polymer.dom(el).textContent, rawValue, 'textContent is ' + rawValue);
       });
 
-      test('raw property is set', function () {
+      test('raw property is set as ' + rawValue, function () {
         updateModel(el, params.assign);
         assert.isString(el.raw, 'raw property is a string');
         assert.equal(el.raw, rawValue, 'raw property is set as the raw value');
       });
 
-      test('offset property from attribute', function () {
+      test('offset property from attribute is set as ' + params.offset, function () {
         updateModel(el, params.assign);
         assert.isNumber(el.offset, 'offset is a number');
-        assert.equal(el.offset, 1, 'offset is 1');
+        assert.equal(el.offset, params.offset, 'offset is ' + params.offset);
       });
 
-      test('rawNumber property is set', function () {
+      test('rawNumber property is set as ' + params.rawNumber, function () {
         updateModel(el, params.assign);
         assert.isNumber(el.rawNumber, 'rawNumber is a number');
-        assert.equal(el.rawNumber, 123456.789, 'rawNumber is set');
+        assert.equal(el.rawNumber, params.rawNumber, 'rawNumber is set');
       });
 
-      test('number property is set', function () {
+      test('number property is set as ' + params.number, function () {
         updateModel(el, params.assign);
         assert.isNumber(el.number, 'number is a number');
-        assert.equal(el.number, 123455.789, 'number is set');
+        assert.equal(el.number, params.number, 'number is set');
       });
 
-      test('formatted property is set', function () {
+      test('formatted property is set as ' + params.formatted, function () {
         updateModel(el, params.assign);
         assert.isString(el.formatted, 'formatted is a string');
         assert.equal(el.formatted, params.formatted);
       });
 
-      test('renders the formatted number', function () {
+      test('renders the formatted number ' + params.formatted, function () {
         updateModel(el, params.assign);
         assert.equal(el.$.number.textContent, params.formatted);
       });
@@ -185,110 +233,6 @@ suite('<i18n-number>', function () {
     });
   });
 
-/*
-  suite('static value', function () {
-    var el;
-    var rawValue = '123456.789';
-
-    setup(function () {
-      el = fixture('static');
-    });
-
-    test('lang property from attribute', function () {
-      assert.equal(el.lang, 'en', 'lang is en');
-    });
-
-    test('options property from attribute', function () {
-      assert.deepEqual(el.options, {}, 'options is an empty object');
-    });
-
-    test('textContent is set', function () {
-      assert.equal(Polymer.dom(el).textContent, rawValue, 'textContent is ' + rawValue);
-    });
-
-    test('raw property is set', function () {
-      assert.isString(el.raw, 'raw property is a string');
-      assert.equal(el.raw, rawValue, 'raw property is set as the raw value');
-    });
-
-    test('offset property from attribute', function () {
-      assert.isNumber(el.offset, 'offset is a number');
-      assert.equal(el.offset, 1, 'offset is 1');
-    });
-
-    test('rawNumber property is set', function () {
-      assert.isNumber(el.rawNumber, 'rawNumber is a number');
-      assert.equal(el.rawNumber, 123456.789, 'rawNumber is set');
-    });
-
-    test('number property is set', function () {
-      assert.isNumber(el.number, 'number is a number');
-      assert.equal(el.number, 123455.789, 'number is set');
-    });
-
-    test('formatted property is set', function () {
-      assert.isString(el.formatted, 'formatted is a string');
-      assert.equal(el.formatted, '123,455.789');
-    });
-
-    test('renders the formatted number', function () {
-      assert.equal(el.$.number.textContent, '123,455.789');
-    });
-  });
-
-  suite('bound value', function () {
-    var el;
-    var boundTemplate;
-    var rawValue = '123456.789';
-
-    setup(function () {
-      el = fixture('bound', { number: rawValue });
-      boundTemplate = document.getElementById('bound-template');
-    });
-
-    test('lang property from attribute', function () {
-      assert.equal(el.lang, 'en', 'lang is en');
-    });
-
-    test('options property from attribute', function () {
-      assert.deepEqual(el.options, {}, 'options is an empty object');
-    });
-
-    test('textContent is set', function () {
-      assert.equal(Polymer.dom(el).textContent, rawValue, 'textContent is ' + rawValue);
-    });
-
-    test('raw property is set', function () {
-      assert.isString(el.raw, 'raw property is a string');
-      assert.equal(el.raw, rawValue, 'raw property is set as the raw value');
-    });
-
-    test('offset property from attribute', function () {
-      assert.isNumber(el.offset, 'offset is a number');
-      assert.equal(el.offset, 1, 'offset is 1');
-    });
-
-    test('rawNumber property is set', function () {
-      assert.isNumber(el.rawNumber, 'rawNumber is a number');
-      assert.equal(el.rawNumber, 123456.789, 'rawNumber is set');
-    });
-
-    test('number property is set', function () {
-      assert.isNumber(el.number, 'number is a number');
-      assert.equal(el.number, 123455.789, 'number is set');
-    });
-
-    test('formatted property is set', function () {
-      assert.isString(el.formatted, 'formatted is a string');
-      assert.equal(el.formatted, '123,455.789');
-    });
-
-    test('renders the formatted number', function () {
-      assert.equal(el.$.number.textContent, '123,455.789');
-    });
-
-  });
-*/
 });
     </script>
 
