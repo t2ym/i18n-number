@@ -29,6 +29,12 @@ The above example is rendered as follows.
   <script>
   Polymer({
     is: 'i18n-number',
+
+    /**
+     * Fired whenever the formatted text is rendered.
+     *
+     * @event rendered
+     */
     
     properties: {
       /**
@@ -244,6 +250,7 @@ The above example is rendered as follows.
       this.formatted = this._formatNumber(lang, options, this.number);
       this.$.number.textContent = this.formatted;
       //console.log('i18n-number: _render ' + this.formatted);
+      this.fire('rendered');
     }
   });
   </script>
