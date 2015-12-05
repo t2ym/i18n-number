@@ -18,6 +18,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Step 1: import the element to test -->
     <link rel="import" href="../i18n-number.html">
+    <link rel="import" href="bound-i18n-number.html">
   </head>
   <body>
 
@@ -38,24 +39,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <i18n-number lang="en" options="{}" offset="1">{{number}}</i18n-number>
       </template>
     </test-fixture>
-
-    <dom-module id="bound-i18n-number">
-      <template>
-        <i18n-number id="num">{{number}}</i18n-number>
-      </template>
-      <script>
-      Polymer({
-        is: 'bound-i18n-number',
-        properties: {
-          number: {
-            type: String,
-            value: '',
-            notify: true
-          }
-        }
-      });
-      </script>
-    </dom-module>
 
     <test-fixture id="bound-and-wrapped">
       <template>
@@ -82,7 +65,7 @@ suite('<i18n-number>', function () {
     });
 
     test('default raw property', function () {
-      assert.isUndefined(el.raw, 'default raw is undefined');
+      assert.equal(el.raw, '', 'default raw is a null string');
     });
 
     test('default offset property', function () {
@@ -103,6 +86,12 @@ suite('<i18n-number>', function () {
     });
   });
 
+  if (!Number.isNaN) {
+    // polyfill Number.isNaN for IE11
+    Number.isNaN = function (value) {
+      return typeof value === 'number' && isNaN(value);
+    };
+  }
   var rawValue1 = '123456.789';
   var rawNumber1 = Number(rawValue1);
   var rawValueInvalid = 'ABC';
@@ -353,14 +342,29 @@ suite('<i18n-number>', function () {
         el = wrapper.$.num;
       });
 
-      test('change bound value to ' + rawNumber1, function () {
-        wrapper.number = rawNumber1;
+      test('change bound value to ' + rawNumber1, function (done) {
         el.addEventListener('rendered', function (e) {
-          console.log('rendered');
           assert.equal(el.$.number.textContent, '123,456.789', 
                       'renders the formatted number');    
           done();
         });
+        wrapper.number = rawNumber1;
+      });
+
+    });
+
+    suite('non-bound empty textContent changed', function () {
+      setup(function () {
+        el = wrapper.$.empty;
+      });
+
+      test('change empty textContent value to ' + rawNumber1, function (done) {
+        el.addEventListener('rendered', function (e) {
+          assert.equal(el.$.number.textContent, '123,456.789', 
+                      'renders the formatted number');    
+          done();
+        });
+        Polymer.dom(el).textContent = rawNumber1;
       });
 
     });
