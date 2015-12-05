@@ -293,81 +293,98 @@ suite('<i18n-number>', function () {
     var wrapper;
     var el;
 
-    setup(function () {
-      wrapper = fixture('bound-and-wrapped');
-    });
+    var reattach = function (placeholder) {
+      var num = Polymer.dom(placeholder).querySelector('#num');
+      var empty = Polymer.dom(placeholder).querySelector('#empty');
+      Polymer.dom(placeholder).removeChild(num);
+      Polymer.dom(placeholder).removeChild(empty);
+      Polymer.dom(placeholder).appendChild(num);
+      Polymer.dom(placeholder).appendChild(empty);
+    };
 
-    suite('bound and wrapped', function () {
+    [ false, true ].forEach(function (isReattach) {
+
       setup(function () {
-        el = wrapper.$.num;
+        wrapper = fixture('bound-and-wrapped');
+        if (isReattach) {
+          reattach(wrapper.$.placeholder);
+        }
       });
 
-      test('default lang property is en', function () {
-        assert.equal(el.lang, 'en', 'default lang is en');
-      });
-
-      test('default options property is undefined', function () {
-        assert.isUndefined(el.options, 'default options is undefined');
-      });
-
-      test('empty raw property', function () {
-        assert.isString(el.raw, 'empty raw is a string');
-        assert.equal(el.raw, '', 'empty raw is a null string');
-      });
-
-      test('default offset property is 0', function () {
-        assert.isNumber(el.offset, 'offset is a number');
-        assert.equal(el.offset, 0, 'default offset is 0');
-      });
-
-      test('default rawNumber property is undefined', function () {
-        assert.isUndefined(el.rawNumber, 'rawNumber is undefined when raw is null');
-      });
-
-      test('default number property is undefined', function () {
-        assert.isUndefined(el.number, 'number is undefined when raw is null');
-      });
-
-      test('default formatted property is undefined', function () {
-        assert.isUndefined(el.formatted, 'formatted is undefined when raw is null');
-      });
-
-      test('renders a null string', function () {
-        assert.equal(el.$.number.textContent, '', 'textContent is empty');
-      });
-    });
-
-    suite('bound value changed', function () {
-      setup(function () {
-        el = wrapper.$.num;
-      });
-
-      test('change bound value to ' + rawNumber1, function (done) {
-        el.addEventListener('rendered', function (e) {
-          assert.equal(el.$.number.textContent, '123,456.789', 
-                      'renders the formatted number');    
-          done();
+      suite('bound and wrapped' + (isReattach ? ' with reattaching' : ''), function () {
+        setup(function () {
+          el = wrapper.$.num;
         });
-        wrapper.number = rawNumber1;
-      });
 
-    });
-
-    suite('non-bound empty textContent changed', function () {
-      setup(function () {
-        el = wrapper.$.empty;
-      });
-
-      test('change empty textContent value to ' + rawNumber1, function (done) {
-        el.addEventListener('rendered', function (e) {
-          assert.equal(el.$.number.textContent, '123,456.789', 
-                      'renders the formatted number');    
-          done();
+        test('default lang property is en', function () {
+          assert.equal(el.lang, 'en', 'default lang is en');
         });
-        Polymer.dom(el).textContent = rawNumber1;
+
+        test('default options property is undefined', function () {
+          assert.isUndefined(el.options, 'default options is undefined');
+        });
+
+        test('empty raw property', function () {
+          assert.isString(el.raw, 'empty raw is a string');
+          assert.equal(el.raw, '', 'empty raw is a null string');
+        });
+
+        test('default offset property is 0', function () {
+          assert.isNumber(el.offset, 'offset is a number');
+          assert.equal(el.offset, 0, 'default offset is 0');
+        });
+
+        test('default rawNumber property is undefined', function () {
+          assert.isUndefined(el.rawNumber, 'rawNumber is undefined when raw is null');
+        });
+
+        test('default number property is undefined', function () {
+          assert.isUndefined(el.number, 'number is undefined when raw is null');
+        });
+
+        test('default formatted property is undefined', function () {
+          assert.isUndefined(el.formatted, 'formatted is undefined when raw is null');
+        });
+
+        test('renders a null string', function () {
+          assert.equal(el.$.number.textContent, '', 'textContent is empty');
+        });
       });
 
-    });
+      suite('bound value changed' 
+            + (isReattach ? ' with reattaching' : ''), function () {
+        setup(function () {
+          el = wrapper.$.num;
+        });
+
+        test('change bound value to ' + rawNumber1, function (done) {
+          el.addEventListener('rendered', function (e) {
+            assert.equal(el.$.number.textContent, '123,456.789', 
+                        'renders the formatted number');    
+            done();
+          });
+          wrapper.number = rawNumber1;
+        });
+
+      });
+
+      suite('non-bound empty textContent changed' 
+            + (isReattach ? ' with reattaching' : ''), function () {
+        setup(function () {
+          el = wrapper.$.empty;
+        });
+
+        test('change empty textContent value to ' + rawNumber1, function (done) {
+          el.addEventListener('rendered', function (e) {
+            assert.equal(el.$.number.textContent, '123,456.789', 
+                        'renders the formatted number');    
+            done();
+          });
+          Polymer.dom(el).textContent = rawNumber1;
+        });
+
+      });
+    });    
   });
 
 });

@@ -2,8 +2,10 @@
 
 <dom-module id="bound-i18n-number">
   <template>
-    <i18n-number id="num">{{number}}</i18n-number>
-    <i18n-number id="empty"></i18n-number>
+    <span id="placeholder">
+      <i18n-number id="num">{{number}}</i18n-number>
+      <i18n-number id="empty"></i18n-number>
+    </span>
   </template>
   <script>
   Polymer({
