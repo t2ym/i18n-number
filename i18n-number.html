@@ -108,6 +108,35 @@ The above example is rendered as follows.
     DEFAULT_LANG: 'en',
 
     ready: function () {
+      this._setupObservers();
+      //console.log('i18n-number: ready: raw = ' + this.textNode.data);
+      this.raw = this.textNode.data;
+    },
+
+    attached: function () {
+      if (this.textNode) {
+        if (!this.observer) {
+          // reattached
+          this._setupObservers();
+        }
+        //console.log('i18n-number: attached: raw = ' + this.textNode.data);
+        this.raw = this.textNode.data;
+      }
+    },
+
+    detached: function () {
+      if (this.textNode) {
+        //console.log('i18n-number: detached');
+        this.observer.disconnect();
+        Polymer.dom(this).unobserveNodes(this.nodeObserver);
+        this.observer = null;
+      }
+    },
+
+    /**
+     * Set up observers of textContent mutations
+     */
+    _setupObservers: function () {
       this.textNode = Polymer.dom(this).childNodes[0];
       if (!this.textNode) {
         Polymer.dom(this).appendChild(document.createTextNode(''));
@@ -124,22 +153,6 @@ The above example is rendered as follows.
           this.observer.observe(this.textNode, { characterData: true });
         }
       }.bind(this));
-      //console.log('i18n-number: ready: raw = ' + this.textNode.data);
-      this.raw = this.textNode.data;
-    },
-
-    attached: function () {
-      if (this.textNode) {
-        //console.log('i18n-number: attached: raw = ' + this.textNode.data);
-        this.raw = this.textNode.data;
-      }
-    },
-
-    detached: function () {
-      if (this.textNode) {
-        this.observer.disconnect();
-        Polymer.dom(this).unobserveNodes(this.nodeObserver);
-      }
     },
 
     /**
