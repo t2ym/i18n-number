@@ -109,12 +109,23 @@ The above example is rendered as follows.
 
     ready: function () {
       this.textNode = Polymer.dom(this).childNodes[0];
-      if (this.textNode) {
-        this.observer = new MutationObserver(this._textMutated.bind(this));
-        this.observer.observe(this.textNode, { characterData: true });
-        //console.log('i18n-number: ready: raw = ' + this.textNode.data);
-        this.raw = this.textNode.data;
+      if (!this.textNode) {
+        Polymer.dom(this).appendChild(document.createTextNode(''));
+        this.textNode = Polymer.dom(this).childNodes[0];
       }
+      this.observer = new MutationObserver(this._textMutated.bind(this));
+      this.observer.observe(this.textNode, { characterData: true });
+      this.nodeObserver = Polymer.dom(this).observeNodes(function (info) {
+        if (info.addedNodes[0] && 
+            info.addedNodes[0].nodeType === info.addedNodes[0].TEXT_NODE) {
+          this.textNode = info.addedNodes[0];
+          this.raw = this.textNode.data;
+          //console.log('i18n-number: text node added with ' + this.raw);
+          this.observer.observe(this.textNode, { characterData: true });
+        }
+      }.bind(this));
+      //console.log('i18n-number: ready: raw = ' + this.textNode.data);
+      this.raw = this.textNode.data;
     },
 
     attached: function () {
@@ -127,6 +138,7 @@ The above example is rendered as follows.
     detached: function () {
       if (this.textNode) {
         this.observer.disconnect();
+        Polymer.dom(this).unobserveNodes(this.nodeObserver);
       }
     },
 
