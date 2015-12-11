@@ -276,6 +276,13 @@ The above example is rendered as follows.
       this.$.number.textContent = this.formatted;
       //console.log('i18n-number: _render ' + this.formatted);
       this.fire('rendered');
+    },
+
+    /**
+     * Renders the formatted number with the current parameters
+     */
+    render: function () {
+      this._render(this.lang, this.options, this.raw, this.offset);
     }
   });
   </script>
