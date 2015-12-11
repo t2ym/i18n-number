@@ -4,18 +4,146 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>i18n-number Demo</title>
     <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+    <link rel="import" href="../../paper-input/paper-input.html">
+    <link rel="import" href="../../paper-dropdown-menu/paper-dropdown-menu.html">
+    <link rel="import" href="../../paper-menu/paper-menu.html">
+    <link rel="import" href="../../paper-styles/demo-pages.html">
     <link rel="import" href="../i18n-number.html">
+    <style>
+      paper-item {
+        display: block;
+        padding: 4px;
+      }
+
+      .demo-paper-dropdown-menu {
+        text-align: left;
+        margin: auto;
+        width: 180px;
+      }
+    </style>
   </head>
   <body>
-    <h1>i18n-number Demo</h1>
+    <h1><code>&lt;i18n-number&gt;</code> Demo</h1>
 
-    <h2>Currency - USD in en</h2>
-    <i18n-number 
-      lang="en"
-      options='{ "style": "currency", "currency": "USD" }' 
-      offset="1">123456.789</i18n-number>
+    <div class="vertical-section-container">
+      <div class="vertical-section">
+        <h2>Currency - USD in en</h2>
+        <i18n-number 
+          lang="en"
+          options='{ "style": "currency", "currency": "USD" }' 
+          offset="1">123456.789</i18n-number>
+        <h2>Number in en</h2>
+        <i18n-number lang="en">123456.789</i18n-number>
+      </div>
+      <div class="vertical-section">
+        <template is="dom-bind" id="demo">
+          <h2>Parameters<h2>
+          <paper-input label="Raw number input" 
+                      auto-validate 
+                      allowed-pattern="[0-9.]"
+                      value="{{rawNumber}}"></paper-input>
+          <h3>Options</h3>
+          <paper-dropdown-menu id="lang-attr"
+                              label="lang"
+                              class="demo-paper-dropdown-menu"> 
+            <paper-menu class="dropdown-content" 
+                        attr-for-selected="item-value"
+                        selected="{{lang}}">
+              <paper-item item-value="en">en</paper-item>
+              <paper-item item-value="en-GB">en-GB</paper-item>
+              <paper-item item-value="ja">ja</paper-item>
+              <paper-item item-value="fr">fr</paper-item>
+            </paper-menu>
+          </paper-dropdown-menu>
+          <paper-dropdown-menu id="style-option"
+                              label="style"
+                              class="demo-paper-dropdown-menu"> 
+            <paper-menu class="dropdown-content" 
+                        attr-for-selected="item-value"
+                        selected="{{styleoption}}">
+              <paper-item item-value="decimal">decimal</paper-item>
+              <paper-item item-value="currency">currency</paper-item>
+              <paper-item item-value="percent">percent</paper-item>
+            </paper-menu>
+          </paper-dropdown-menu>
+          <paper-dropdown-menu id="currency-option"
+                              label="currency"
+                              class="demo-paper-dropdown-menu"> 
+            <paper-menu class="dropdown-content" 
+                        attr-for-selected="item-value"
+                        selected="{{currency}}">
+              <paper-item item-value="USD">USD</paper-item>
+              <paper-item item-value="EUR">EUR</paper-item>
+              <paper-item item-value="JPY">JPY</paper-item>
+            </paper-menu>
+          </paper-dropdown-menu>
+          <paper-dropdown-menu id="currency-display-option"
+                              label="currencyDisplay"
+                              class="demo-paper-dropdown-menu"> 
+            <paper-menu class="dropdown-content" 
+                        attr-for-selected="item-value"
+                        selected="{{currencyDisplay}}">
+              <paper-item item-value="symbol">symbol</paper-item>
+              <paper-item item-value="name">name</paper-item>
+            </paper-menu>
+          </paper-dropdown-menu>
+          <h2>Output<h2>
+          <i18n-number lang="{{lang}}" options="{{options}}">{{rawNumber}}</i18n-number>
+        </template>
+        <script>
+          function mixin (base, extend) {
+            for (var i in extend) {
+              base[i] = extend[i];
+            }
+          }
+          mixin(demo, {
+            properties: {
+              options: {
+                type: Object,
+                //value: function () { return {} }
+                computed: '_constructOptions(styleoption,currency,currencyDisplay)'
+              },
+              lang: {
+                type: String,
+                value: 'en'
+              },
+              styleoption: {
+                type: String,
+                value: 'decimal'
+              },
+              currency: {
+                type: String,
+                value: 'USD'
+              },
+              currencyDisplay: {
+                type: String,
+                value: 'symbol'
+              }
+            },
 
-    <h2>Number in en</h2>
-    <i18n-number lang="en">123456.789</i18n-number>
+            listeners: {
+            },
+
+            _constructOptions: function (styleoption, currency, currencyDisplay) {
+              var options = {};
+              options.style = styleoption;
+              if (styleoption === 'currency') {
+                this.$['currency-option'].disabled = false;
+                this.$['currency-display-option'].disabled = false;
+                options.currency = currency;
+                options.currencyDisplay = currencyDisplay;
+              }
+              else {
+                this.$['currency-option'].disabled = true;
+                this.$['currency-display-option'].disabled = true;
+              }
+              return options;
+            }
+
+          });
+        </script>
+      </div>
+    </div>
   </body>
 </html>
