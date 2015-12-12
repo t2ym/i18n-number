@@ -55,7 +55,8 @@ The above example is rendered as follows.
        */
       options: {
         type: Object,
-        observer: '_optionsChanged'
+        observer: '_optionsChanged',
+        notify: true
       },
 
       /**
@@ -101,6 +102,10 @@ The above example is rendered as follows.
         notify: true
       }
     },
+
+    observers: [
+      '_onOptionsPropertyChanged(options.*)'
+    ],
 
     /**
      * Default locale constant 'en'
@@ -215,6 +220,16 @@ The above example is rendered as follows.
       if (this.textNode) {
         //console.log('i18n-number: _optionsChanged: options = ' + JSON.stringify(options));
         this._render(this.lang, options, this.raw, this.offset);
+      }
+    },
+
+    /**
+     * Observer of `options` sub-properties to re-render the formatted number.
+     */
+    _onOptionsPropertyChanged: function (changeRecord) {
+      if (this.textNode) {
+        console.log('_onOptionsPropertyChanged: path = ' + changeRecord.path + ' value = ' + JSON.stringify(changeRecord.value));
+        this._render(this.lang, this.options, this.raw, this.offset);
       }
     },
 
