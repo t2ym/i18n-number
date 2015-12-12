@@ -40,10 +40,11 @@
         <template is="dom-bind" id="demo">
           <h2>Parameters<h2>
           <paper-input label="Raw number input" 
-                      auto-validate 
-                      allowed-pattern="[0-9.]"
+                      auto-validate
+                      pattern="[0-9]*([.][0-9]*)?"
+                      error-message="Only number!"
                       value="{{rawNumber}}"></paper-input>
-          <h3>Options</h3>
+          <h3>Language</h3>
           <paper-dropdown-menu id="lang-attr"
                               label="lang"
                               class="demo-paper-dropdown-menu"> 
@@ -56,12 +57,13 @@
               <paper-item item-value="fr">fr</paper-item>
             </paper-menu>
           </paper-dropdown-menu>
+          <h3>Options</h3>
           <paper-dropdown-menu id="style-option"
                               label="style"
                               class="demo-paper-dropdown-menu"> 
             <paper-menu class="dropdown-content" 
                         attr-for-selected="item-value"
-                        selected="{{styleoption}}">
+                        selected="{{options.style}}">
               <paper-item item-value="decimal">decimal</paper-item>
               <paper-item item-value="currency">currency</paper-item>
               <paper-item item-value="percent">percent</paper-item>
@@ -69,10 +71,11 @@
           </paper-dropdown-menu>
           <paper-dropdown-menu id="currency-option"
                               label="currency"
-                              class="demo-paper-dropdown-menu"> 
+                              class="demo-paper-dropdown-menu"
+                              disabled="{{_disableCurrencyOptions(options.style)}}"> 
             <paper-menu class="dropdown-content" 
                         attr-for-selected="item-value"
-                        selected="{{currency}}">
+                        selected="{{options.currency}}">
               <paper-item item-value="USD">USD</paper-item>
               <paper-item item-value="EUR">EUR</paper-item>
               <paper-item item-value="JPY">JPY</paper-item>
@@ -80,10 +83,11 @@
           </paper-dropdown-menu>
           <paper-dropdown-menu id="currency-display-option"
                               label="currencyDisplay"
-                              class="demo-paper-dropdown-menu"> 
+                              class="demo-paper-dropdown-menu"
+                              disabled="{{_disableCurrencyOptions(options.style)}}"> 
             <paper-menu class="dropdown-content" 
                         attr-for-selected="item-value"
-                        selected="{{currencyDisplay}}">
+                        selected="{{options.currencyDisplay}}">
               <paper-item item-value="symbol">symbol</paper-item>
               <paper-item item-value="name">name</paper-item>
             </paper-menu>
@@ -99,46 +103,34 @@
           }
           mixin(demo, {
             properties: {
+              rawNumber: {
+                type: String,
+                value: '12.34'
+              },
               options: {
                 type: Object,
-                //value: function () { return {} }
-                computed: '_constructOptions(styleoption,currency,currencyDisplay)'
+                value: function () { 
+                  return { 
+                    style: 'decimal', 
+                    currency: 'USD', 
+                    currencyDisplay: 'symbol' 
+                  };
+                }
               },
               lang: {
                 type: String,
                 value: 'en'
               },
-              styleoption: {
-                type: String,
-                value: 'decimal'
-              },
-              currency: {
-                type: String,
-                value: 'USD'
-              },
-              currencyDisplay: {
-                type: String,
-                value: 'symbol'
-              }
             },
+
+            observers: [
+            ],
 
             listeners: {
             },
 
-            _constructOptions: function (styleoption, currency, currencyDisplay) {
-              var options = {};
-              options.style = styleoption;
-              if (styleoption === 'currency') {
-                this.$['currency-option'].disabled = false;
-                this.$['currency-display-option'].disabled = false;
-                options.currency = currency;
-                options.currencyDisplay = currencyDisplay;
-              }
-              else {
-                this.$['currency-option'].disabled = true;
-                this.$['currency-display-option'].disabled = true;
-              }
-              return options;
+            _disableCurrencyOptions: function (style) {
+              return style !== 'currency';
             }
 
           });
