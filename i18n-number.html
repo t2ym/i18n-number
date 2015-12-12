@@ -226,9 +226,9 @@ The above example is rendered as follows.
     /**
      * Observer of `options` sub-properties to re-render the formatted number.
      */
-    _onOptionsPropertyChanged: function (changeRecord) {
+    _onOptionsPropertyChanged: function (/* changeRecord */) {
       if (this.textNode) {
-        console.log('_onOptionsPropertyChanged: path = ' + changeRecord.path + ' value = ' + JSON.stringify(changeRecord.value));
+        //console.log('_onOptionsPropertyChanged: path = ' + changeRecord.path + ' value = ' + JSON.stringify(changeRecord.value));
         this._render(this.lang, this.options, this.raw, this.offset);
       }
     },
