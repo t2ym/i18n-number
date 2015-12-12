@@ -40,6 +40,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </template>
     </test-fixture>
 
+    <test-fixture id="bound-default-options">
+      <template is="dom-template" id="bound-template">
+        <i18n-number lang="en" offset="1">{{number}}</i18n-number>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="bound-currency-options">
+      <template is="dom-template" id="bound-template">
+        <i18n-number lang="en" options='{ "style": "currency", "currency": "USD" }' offset="1">{{number}}</i18n-number>
+      </template>
+    </test-fixture>
+
     <test-fixture id="bound-and-wrapped">
       <template>
         <bound-i18n-number></bound-i18n-number>
@@ -104,6 +116,7 @@ suite('<i18n-number>', function () {
   var formatted1_en = '123,455.789';
   var formatted1_fr = '123\u00A0455,789';
   var formatted1_USD = '$123,455.79';
+  var formatted1_JPY = '¥123,456';
   var formatted1_offset = '123,454.789';
   var suites = [
     { 
@@ -153,15 +166,86 @@ suite('<i18n-number>', function () {
       formatted: formatted1_fr
     },
     { 
-      suite: 'change options value', 
+      suite: 'change options object value', 
       fixture: 'bound', 
       model: { number: rawValue1 }, 
       rawValue: rawValue1,
       offset: offset1,
       rawNumber: rawNumber1,
       number: number1,
-      options: { "style": "currency", "currency": "USD" },
+      options: { 'style': 'currency', 'currency': 'USD' },
       assign: { options: { 'style': 'currency', 'currency': 'USD' } },
+      formatted: formatted1_USD
+    },
+    { 
+      suite: 'change options property values', 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: { 'style': 'currency', 'currency': 'USD' },
+      assign: { 'options': {}, 'options.style': 'currency', 'options.currency': 'USD' },
+      formatted: formatted1_USD
+    },
+    { 
+      suite: 'change currency options object value', 
+      fixture: 'bound-currency-options', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: { 'style': 'currency', 'currency': 'JPY' },
+      assign: { options: { 'style': 'currency', 'currency': 'JPY' } },
+      formatted: formatted1_JPY
+    },
+    { 
+      suite: 'change currency options property values', 
+      fixture: 'bound-currency-options', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: { 'style': 'currency', 'currency': 'JPY' },
+      assign: { 'options.currency': 'JPY' },
+      formatted: formatted1_JPY
+    },
+    { 
+      suite: 'default options object value', 
+      fixture: 'bound-default-options', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: undefined,
+      formatted: formatted1_en
+    },
+    { 
+      suite: 'change options object value from default options', 
+      fixture: 'bound-default-options', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: { 'style': 'currency', 'currency': 'USD' },
+      assign: { options: { 'style': 'currency', 'currency': 'USD' } },
+      formatted: formatted1_USD
+    },
+    { 
+      suite: 'change options property values from default options', 
+      fixture: 'bound-default-options', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: { 'style': 'currency', 'currency': 'USD' },
+      assign: { 'options': {}, 'options.style': 'currency', 'options.currency': 'USD' },
       formatted: formatted1_USD
     },
     { 
@@ -209,10 +293,28 @@ suite('<i18n-number>', function () {
       var fixtureElement;
       var lang = params.assign && params.assign.lang ? params.assign.lang : 'en';
       var updateModel = function (element, model) {
-        for (var p in model) {
-          element[p] = model[p];
+        for (var name in model) {
+          var path = name.split(/[.]/);
+          if (path.length === 1) {
+            element[name] = model[name];
+          }
+          else {
+            var cursor = element;
+            var p = path.shift();
+            while (p) {
+              if (path.length < 1) {
+                cursor[p] = model[name];
+                element.notifyPath(name, model[name], true);
+                break;
+              }
+              else {
+                cursor = cursor[p];
+              }
+              p = path.shift();
+            }
+          }
         }
-      }
+      };
 
       setup(function () {
         el = fixture(params.fixture, params.model);
@@ -302,6 +404,30 @@ suite('<i18n-number>', function () {
       Polymer.dom(placeholder).appendChild(empty);
     };
 
+    var updateModel = function (element, model) {
+      for (var name in model) {
+        var path = name.split(/[.]/);
+        if (path.length === 1) {
+          element[name] = model[name];
+        }
+        else {
+          var cursor = element;
+          var p = path.shift();
+          while (p) {
+            if (path.length < 1) {
+              cursor[p] = model[name];
+              element.notifyPath(name, model[name], true);
+              break;
+            }
+            else {
+              cursor = cursor[p];
+            }
+            p = path.shift();
+          }
+        }
+      }
+    };
+
     [ false, true ].forEach(function (isReattach) {
 
       setup(function () {
@@ -381,6 +507,42 @@ suite('<i18n-number>', function () {
             done();
           });
           Polymer.dom(el).textContent = rawNumber1;
+        });
+
+      });
+
+      suite('currency options value changed' 
+            + (isReattach ? ' with reattaching' : ''), function () {
+        setup(function () {
+          el = wrapper.$.currency;
+        });
+
+        test('change currency options value to JPY', function (done) {
+          el.addEventListener('rendered', function (e) {
+            assert.equal(el.$.number.textContent, '¥123,457', 
+                        'renders the formatted currency');
+            done();
+          });
+          wrapper.options.currency = 'JPY';
+          wrapper.notifyPath('options.currency', wrapper.options.currency, true);
+        });
+
+      });
+
+      suite('bound currency options value changed' 
+            + (isReattach ? ' with reattaching' : ''), function () {
+        setup(function () {
+          el = wrapper.$.currency;
+        });
+
+        test('change bound currency options value to JPY', function (done) {
+          el.addEventListener('rendered', function (e) {
+            assert.equal(el.$.number.textContent, '¥123,457', 
+                        'renders the formatted currency');
+            done();
+          });
+          wrapper.$.currencySelector.select('JPY');
+          //wrapper.notifyPath('options.currency', wrapper.options.currency, true);
         });
 
       });

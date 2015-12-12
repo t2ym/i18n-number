@@ -1,10 +1,16 @@
 <link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../iron-selector/iron-selector.html">
 
 <dom-module id="bound-i18n-number">
   <template>
     <span id="placeholder">
       <i18n-number id="num">{{number}}</i18n-number>
       <i18n-number id="empty"></i18n-number>
+      <i18n-number id="currency" options="{{options}}">123456.789</i18n-number>
+      <iron-selector id="currencySelector" attr-for-selected="value" selected="{{options.currency}}">
+        <div name="USD" iron-selected>USD</div>
+        <div name="JPY">JPY</div>
+      </iron-selector>
     </span>
   </template>
   <script>
@@ -14,6 +20,13 @@
       number: {
         type: String,
         value: '',
+        notify: true
+      },
+      options: {
+        type: Object,
+        value: function () {
+          return { 'style': 'currency', 'currency': 'USD' };
+        },
         notify: true
       }
     }
