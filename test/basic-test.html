@@ -529,6 +529,24 @@ suite('<i18n-number>', function () {
 
       });
 
+      suite('currency options value changed' 
+            + (isReattach ? ' with reattaching' : ''), function () {
+        setup(function () {
+          el = wrapper.$.currency;
+        });
+
+        test('change currency options value to JPY and render()', function (done) {
+          el.addEventListener('rendered', function (e) {
+            assert.equal(el.$.number.textContent, '¥123,457', 
+                        'renders the formatted currency');
+            done();
+          });
+          wrapper.options.currency = 'JPY';
+          el.render();
+        });
+
+      });
+
       suite('bound currency options value changed' 
             + (isReattach ? ' with reattaching' : ''), function () {
         setup(function () {
