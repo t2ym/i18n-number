@@ -39,57 +39,58 @@
       <div class="vertical-section">
         <template is="dom-bind" id="demo">
           <h2>Parameters<h2>
+          <h3>Number</h3>
           <paper-input label="Raw number input" 
                       auto-validate
                       pattern="[0-9]*([.][0-9]*)?"
-                      error-message="Only number!"
+                      error-message="Number only!"
                       value="{{rawNumber}}"></paper-input>
           <h3>Language</h3>
           <paper-dropdown-menu id="lang-attr"
                               label="lang"
-                              class="demo-paper-dropdown-menu"> 
+                              class="demo-paper-dropdown-menu"
+                              selected-item-label="{{lang}}"> 
             <paper-menu class="dropdown-content" 
-                        attr-for-selected="item-value"
-                        selected="{{lang}}">
-              <paper-item item-value="en">en</paper-item>
-              <paper-item item-value="en-GB">en-GB</paper-item>
-              <paper-item item-value="ja">ja</paper-item>
-              <paper-item item-value="fr">fr</paper-item>
+                        attr-for-selected="label">
+              <template is="dom-repeat" items="{{parameterValues.lang}}">
+                <paper-item label="{{item}}">{{item}}</paper-item>
+              </template>
             </paper-menu>
           </paper-dropdown-menu>
           <h3>Options</h3>
           <paper-dropdown-menu id="style-option"
                               label="style"
-                              class="demo-paper-dropdown-menu"> 
+                              class="demo-paper-dropdown-menu"
+                              selected-item-label="{{options.style}}"> 
             <paper-menu class="dropdown-content" 
-                        attr-for-selected="item-value"
-                        selected="{{options.style}}">
-              <paper-item item-value="decimal">decimal</paper-item>
-              <paper-item item-value="currency">currency</paper-item>
-              <paper-item item-value="percent">percent</paper-item>
+                        attr-for-selected="label">
+              <template is="dom-repeat" items="{{parameterValues.style}}">
+                <paper-item label="{{item}}">{{item}}</paper-item>
+              </template>
             </paper-menu>
           </paper-dropdown-menu>
           <paper-dropdown-menu id="currency-option"
                               label="currency"
                               class="demo-paper-dropdown-menu"
+                              selected-item-label="{{options.currency}}"
                               disabled="{{_disableCurrencyOptions(options.style)}}"> 
             <paper-menu class="dropdown-content" 
-                        attr-for-selected="item-value"
-                        selected="{{options.currency}}">
-              <paper-item item-value="USD">USD</paper-item>
-              <paper-item item-value="EUR">EUR</paper-item>
-              <paper-item item-value="JPY">JPY</paper-item>
+                        attr-for-selected="label">
+              <template is="dom-repeat" items="{{parameterValues.currency}}">
+                <paper-item label="{{item}}">{{item}}</paper-item>
+              </template>
             </paper-menu>
           </paper-dropdown-menu>
           <paper-dropdown-menu id="currency-display-option"
                               label="currencyDisplay"
                               class="demo-paper-dropdown-menu"
+                              selected-item-label="{{options.currencyDisplay}}"
                               disabled="{{_disableCurrencyOptions(options.style)}}"> 
             <paper-menu class="dropdown-content" 
-                        attr-for-selected="item-value"
-                        selected="{{options.currencyDisplay}}">
-              <paper-item item-value="symbol">symbol</paper-item>
-              <paper-item item-value="name">name</paper-item>
+                        attr-for-selected="label">
+              <template is="dom-repeat" items="{{parameterValues.currencyDisplay}}">
+                <paper-item label="{{item}}">{{item}}</paper-item>
+              </template>
             </paper-menu>
           </paper-dropdown-menu>
           <h2>Output<h2>
@@ -121,6 +122,34 @@
                 type: String,
                 value: 'en'
               },
+              parameterValues: {
+                type: Object,
+                value: function () {
+                  return {
+                    lang: [
+                      'en',
+                      'en-GB',
+                      'ja',
+                      'fr'
+                    ],
+                    style: [
+                      'decimal',
+                      'currency',
+                      'percent'
+                    ],
+                    currency: [
+                      'USD',
+                      'EUR',
+                      'JPY',
+                      'CNY'
+                    ],
+                    currencyDisplay: [
+                      'symbol',
+                      'name'
+                    ]
+                  };
+                }
+              }
             },
 
             observers: [
