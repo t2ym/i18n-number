@@ -5,6 +5,7 @@
   <template>
     <span id="placeholder">
       <i18n-number id="num">{{number}}</i18n-number>
+      <i18n-number id="num2">{{number2}}</i18n-number>
       <i18n-number id="empty"></i18n-number>
       <i18n-number id="currency" options="{{options}}">123456.789</i18n-number>
       <iron-selector id="currencySelector" attr-for-selected="value" selected="{{options.currency}}">
@@ -20,6 +21,11 @@
       number: {
         type: String,
         value: '',
+        notify: true
+      },
+      number2: {
+        type: String,
+        value: '12.34',
         notify: true
       },
       options: {
