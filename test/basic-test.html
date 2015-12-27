@@ -494,6 +494,23 @@ suite('<i18n-number>', function () {
 
       });
 
+      suite('bound value emptied' 
+            + (isReattach ? ' with reattaching' : ''), function () {
+        setup(function () {
+          el = wrapper.$.num;
+        });
+
+        test('change bound value to empty', function (done) {
+          el.addEventListener('rendered', function (e) {
+            assert.equal(el.$.number.textContent, '', 
+                        'renders the formatted number');    
+            done();
+          });
+          wrapper.number = '';
+        });
+
+      });
+
       suite('non-bound empty textContent changed' 
             + (isReattach ? ' with reattaching' : ''), function () {
         setup(function () {
