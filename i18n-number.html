@@ -281,13 +281,20 @@ The above example is rendered as follows.
     _render: function (lang, options, raw, offset) {
       // TODO: rendering may be done redundantly on property initializations
       raw = raw.trim();
-      if (!raw) {
+      if (!raw && !this.formatted) {
         //console.log('i18n-number: skipping _render as raw is null');
         return;
       }
-      this.rawNumber = Number(raw);
-      this.number = this.rawNumber - offset;
-      this.formatted = this._formatNumber(lang, options, this.number);
+      if (raw) {
+        this.rawNumber = Number(raw);
+        this.number = this.rawNumber - offset;
+        this.formatted = this._formatNumber(lang, options, this.number);
+      }
+      else {
+        this.rawNumber = undefined;
+        this.number = undefined;
+        this.formatted = '';
+      }
       this.$.number.textContent = this.formatted;
       //console.log('i18n-number: _render ' + this.formatted);
       this.fire('rendered');
@@ -295,6 +302,19 @@ The above example is rendered as follows.
 
     /**
      * Renders the formatted number with the current parameters
+     *
+     * Note: (As of Polymer 1.2.3)
+     *   Explicit render() call is needed whenever the observer 
+     *   `_onOptionsPropertyChanged(options.*)` is NOT invoked 
+     *   after a property of `options` is changed.  An explicit call 
+     *   `this.notifyPath('options', this.options, true)` can also 
+     *   trigger re-rendering.
+     *
+     *   If the changed property of `options` is bound in an annotation
+     *   like `{{options.currency}}` The observer `_onOptionsPropertyChanged(options.*)`
+     *   is automatically called whenever the property value is changed
+     *   and thus no explicit call of `render()` or `notifyPath()` is
+     *   required.
      */
     render: function () {
       this._render(this.lang, this.options, this.raw, this.offset);
