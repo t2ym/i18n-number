@@ -337,14 +337,16 @@
           this.op = '';
           break;
         default:
-          this.x = Math.sqrt(this.y);
-          this.y = NaN;
-          this.op = '';
+          if (Number.isNaN(this.y)) {
+            this.y = this.x;
+          }
+          this.y = Math.sqrt(this.y);
           break;
         }
         break;
       case '%':
-        if (Number.isNaN(this.y)) {
+        if (this.op &&
+            Number.isNaN(this.y)) {
           this.y = this.x;
         }
         switch (this.op) {
