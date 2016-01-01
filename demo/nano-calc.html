@@ -544,7 +544,8 @@
         case '-':
         case '*':
         case '/':
-          if (op === this.op) {
+          if (Number.isNaN(this.y) &&
+              op === this.op) {
             this.y = this.x;
             this.op = this.op + '=';
           }
