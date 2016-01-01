@@ -1,0 +1,564 @@
+<link rel="import" href="../../paper-input/paper-input.html">
+<link rel="import" href="../../iron-input/iron-input.html">
+<link rel="import" href="../../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../paper-menu/paper-menu.html">
+<link rel="import" href="../../paper-item/paper-item.html">
+<link rel="import" href="../../paper-button/paper-button.html">
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="../i18n-number.html">
+
+<dom-module id="nano-calc">
+  <template>
+    <style>
+      :host {
+
+      }
+
+      .digits-display {
+        font-size: 30px;
+        width: auto;
+        height: 34px;
+        padding: 8px;
+        margin: 0px;
+        min-width: 100px;
+        background-color: rgba(180,202,108,1.0);
+      }
+
+      .button {
+        font-size: 24px;
+        width: 64px;
+        min-width: 40px;
+        padding: 16px 4px;
+        margin: 8px;
+      }
+
+      @media (max-width: 450px) {
+
+        .digits-display {
+          font-size: 24px;
+          height: 28px;
+          padding: 8px;
+          margin: 0px;
+        }
+
+        .button {
+          font-size: 17px;
+          width: 40px;
+          padding: 8px 4px;
+        }
+
+      }
+
+      .transparent {
+        font-size: 0px;
+        width: 196px;
+        height: 29px;
+        border: 0px;
+        padding: 0px;
+        margin: 0px;
+        color: rgba(255,255,255,0.0);
+        background-color: rgba(255,255,255,0.0);
+        position: absolute;
+      }
+
+      .display-section {
+        margin: 8px;
+        padding: 4px;
+      }
+
+      .frame {
+        @apply(--shadow-elevation-2dp);
+      }
+
+      .keypad {
+
+      }
+    </style>
+
+    <table id="frame" tabindex="-1" class="frame"><tr><td>
+      <div id="display" class="display-section">
+        <span class="layout horizontal digits-display">
+          <span class="flex"></span>
+          <i18n-number id="value" 
+                      formatted="{{value}}"
+                      options='{ "maximumFractionDigits": 16 }'>{{pickDisplayValue(x,y,op)}}</i18n-number>
+        </span>
+      </div>
+      <div id="keypad" class="keypad">
+        <template is="dom-repeat"
+                  items='[ 
+                    [ [ "+/-", "±" ], [ "MR", "MR" ], [ "M-", "M-" ], [ "M+", "M+" ], [ "/", "/" ] ],
+                    [ [ "%", "%" ], [ "7", "7" ], [ "8", "8" ], [ "9", "9" ], [ "*", "×" ] ],
+                    [ [ "sqrt", "√" ], [ "4", "4" ], [ "5", "5" ], [ "6", "6" ], [ "-", "-" ] ],
+                    [ [ "C", "C" ], [ "1", "1" ], [ "2", "2" ], [ "3", "3" ], [ "+", "+" ] ],
+                    [ [ "AC", "AC" ], [ "0", "0" ], [ ".", "." ], [ "EXP", "EXP" ], [ "=", "=" ] ]
+                  ]' as="row">
+          <div class="layout vertical">
+            <div class="layout horizontal">
+              <template is="dom-repeat" items="{{row}}">
+                <paper-button id="{{item.0}}"
+                              class="button"
+                              raised
+                              on-tap="onButtonTap">{{item.1}}</paper-button>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+    </td></tr></table>
+    <br>
+
+    <span>input = {{input}}</span><br>
+    <span>x = {{x}}</span><br>
+    <span>y = {{y}}</span><br>
+    <span>op = {{op}}</span><br>
+    <span>m = {{m}}</span>
+
+  </template>
+  <script>
+  Polymer({
+    is: 'nano-calc',
+    properties: {
+      input: {
+        type: String,
+        value: '',
+        observer: 'onInputChange'
+      },
+      value: {
+        type: String,
+        observer: 'onValueChange'
+      },
+      x: {
+        type: Number,
+        value: NaN
+      },
+      y: {
+        type: Number,
+        value: NaN
+      },
+      op: {
+        type: String,
+        value: ''
+      },
+      m: {
+        type: Number,
+        value: 0
+      }
+    },
+
+    listeners: {
+      'keypress': 'onKeyPress'
+    },
+
+    observers: [
+    ],
+
+    pickDisplayValue: function (x, y, op) {
+      switch (op) {
+      case '':
+      case '=':
+      case '+=':
+      case '-=':
+      case '*=':
+      case '/=':
+      case '*%':
+        return Number.isNaN(x) ? 0 : x;
+      default:
+        return Number.isNaN(y) ? x : y;
+      }
+    },
+
+    onValueChange: function (newValue, oldValue) {
+      console.log('newValue = ' + newValue + ' oldValue = ' + oldValue);
+    },
+
+    onInputChange: function (newValue, oldValue) {
+      console.log('newValue = ' + newValue + ' oldValue = ' + oldValue);
+      switch (newValue) {
+      case '+':
+      case '-':
+      case '*':
+      case '/':
+      case '=':
+      case 'AC':
+      case 'C':
+      case '+/-':
+      case 'sqrt':
+      case '%':
+      case 'M+':
+      case 'M-':
+      case 'MR':
+        this.calculate(newValue);
+        break;
+      case 'EXP':
+        break;
+      case '':
+        if (oldValue && 
+            oldValue.length === 1 &&
+            '1234567890'.indexOf(oldValue) > 0) {
+
+        }
+        else {
+          break;
+        }
+      default:
+        switch (this.op) {
+        case '':
+        case '=':
+        case '+=':
+        case '-=':
+        case '*=':
+        case '/=':
+        case '*%':
+          this.x = newValue ? Number(newValue) : NaN;
+          break;
+        default:
+          this.y = newValue ? Number(newValue) : NaN;
+          break;
+        }
+        break;
+      }
+    },
+
+    onButtonTap: function (e) {
+      var key = e.target.id;
+      console.log('onButtonTap: key = ' + key);
+      switch (key) {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+      case '.':
+        this.input += key;
+        break;
+      case 'BS':
+        if (this.input) {
+          this.input = this.input.slice(0, -1);
+        }
+        break;
+      default:
+        this.input = key;
+        break;
+      }
+      this.$.frame.focus();
+    },
+
+    onKeyPress: function (e) {
+      var key = e.key || String.fromCharCode(e.charCode);
+      console.log('onKeyPress: ' + key);
+      switch (key) {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+      case '.':
+      case 'e':
+        this.input += key;
+        break;
+      case '+':
+      case '-':
+      case '*':
+      case '/':
+        this.input = key;
+        break;
+      case '=':
+      case '\r':
+        this.input = '=';
+        break;
+      default:
+        this.input = key;
+        break;
+      }
+      return false;
+    },
+
+    calculate: function (op) {
+      var t;
+      switch (op) {
+      case 'AC':
+        this.x = NaN;
+        this.y = NaN;
+        this.m = 0;
+        this.op = '';
+        break;
+      case 'C':
+        switch (this.op) {
+        case '':
+        case '=':
+        case '+=':
+        case '-=':
+        case '*=':
+        case '/=':
+          this.x = NaN;
+          break;
+        default:
+          this.y = NaN;
+          break;
+        }
+        break;
+      case '+/-':
+        switch (this.op) {
+        case '':
+        case '=':
+        case '+=':
+        case '-=':
+        case '*=':
+        case '/=':
+          this.x = -this.x;
+          break;
+        default:
+          this.y = -this.y;
+          break;
+        }
+        break;
+      case 'sqrt':
+        switch (this.op) {
+        case '':
+        case '=':
+        case '+=':
+        case '-=':
+        case '*=':
+        case '/=':
+          this.x = Math.sqrt(this.x);
+          this.y = NaN;
+          this.op = '';
+          break;
+        default:
+          this.x = Math.sqrt(this.y);
+          this.y = NaN;
+          this.op = '';
+          break;
+        }
+        break;
+      case '%':
+        if (Number.isNaN(this.y)) {
+          this.y = this.x;
+        }
+        switch (this.op) {
+        case '':
+        case '=':
+          this.op = '';
+          break;
+        case '+=':
+          this.x = (this.x + this.y) / this.y * 100;
+          break;
+        case '-=':
+          this.x = (this.x - this.y) / this.y * 100;
+          break;
+        case '/=':
+          this.x = this.x / this.y * 100;
+          break;
+        case '*=':
+          this.x = this.y * this.x / 100;
+          break;
+        case '+':
+          this.x = (this.x + this.y) / this.y * 100;
+          this.y = NaN;
+          this.op = '';
+          break;
+        case '-':
+          this.x = (this.x - this.y) / this.y * 100;
+          this.y = NaN;
+          this.op = '';
+          break;
+        case '*':
+          t = this.x;
+          this.x = this.x * this.y / 100;
+          this.y = t;
+          this.op = '*%';
+          break;
+        case '/':
+          this.x = this.x / this.y * 100;
+          this.y = NaN;
+          this.op = '';
+          break;
+        default:
+          this.op = '';
+          break;
+        }
+        break;
+      case 'M+':
+        switch (this.op) {
+        case '':
+        case '=':
+        case '+=':
+        case '-=':
+        case '*=':
+        case '/=':
+        case '*%':
+          this.m += this.x;
+          break;
+        default:
+          this.m += this.y;
+          break;
+        }
+        break;
+      case 'M-':
+        switch (this.op) {
+        case '':
+        case '=':
+        case '+=':
+        case '-=':
+        case '*=':
+        case '/=':
+        case '*%':
+          this.m -= this.x;
+          break;
+        default:
+          this.m -= this.y;
+          break;
+        }
+        break;
+      case 'MR':
+        switch (this.op) {
+        case '':
+        case '=':
+        case '+=':
+        case '-=':
+        case '*=':
+        case '/=':
+        case '*%':
+          this.x = this.m;
+          break;
+        default:
+          this.y = this.m;
+          break;
+        }
+        break;
+      default:
+        if (Number.isNaN(this.x)) {
+          this.x = 0;
+        }
+        if (!Number.isNaN(this.y)) {
+          switch (this.op) {
+          case '+':
+            this.x += this.y;
+            break;
+          case '+=':
+            if (op === '=') {
+              this.x += this.y;
+            }
+            break;
+          case '-':
+            this.x -= this.y;
+            break;
+          case '-=':
+            if (op === '=') {
+              this.x -= this.y;
+            }
+            break;
+          case '*':
+            this.x *= this.y;
+            break;
+          case '*=':
+            if (op === '=') {
+              this.x *= this.y;
+            }
+            break;
+          case '*%':
+            switch (op) {
+            case '+':
+              this.x = this.y + this.x;
+              break;
+            case '-':
+              this.x = this.y - this.x;
+              break;
+            default:
+              break;
+            }
+            this.y = NaN;
+            op = '';
+            break;
+          case '/':
+            this.x /= this.y;
+            break;
+          case '/=':
+            if (op === '=') {
+              this.x /= this.y;
+            }
+            break;
+          case '':
+          case '=':
+            break;
+          default:
+            break;
+          }
+        }
+        else {
+          switch (op) {
+          case '=':
+            switch (this.op) {
+            case '+':
+            case '-':
+              this.op = '';
+              break;
+            case '*':
+              this.x = this.x * this.x;
+              this.op = '';
+              break;
+            case '/':
+              this.x = this.x / this.x;
+              this.op = '';
+              break;
+            default:
+              break;
+            }
+            break;
+          default:
+            break;
+          }
+        }
+        switch (op) {
+        case '=':
+          switch (this.op) {
+          case '+':
+          case '-':
+          case '*':
+          case '/':
+          case '+=':
+          case '-=':
+          case '*=':
+          case '/=':
+            this.op = this.op[0] + op;
+            break;
+          default:
+            this.op = '';
+            this.y = NaN;
+            break;
+          }
+          break;
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+          if (op === this.op) {
+            this.y = this.x;
+            this.op = this.op + '=';
+          }
+          else {
+            this.op = op;
+            this.y = NaN;
+          }
+          break;
+        }
+        break;
+      }
+      this.input = '';
+    }
+
+  });
+  </script>
+</dom-module>

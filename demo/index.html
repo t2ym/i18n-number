@@ -10,16 +10,66 @@
     <link rel="import" href="../../paper-menu/paper-menu.html">
     <link rel="import" href="../../paper-item/paper-item.html">
     <link rel="import" href="../../paper-styles/demo-pages.html">
+    <link rel="import" href="../../paper-input-autocomplete/paper-input-autocomplete.html">
     <link rel="import" href="../i18n-number.html">
-    <style>
+    <link rel="import" href="editable-dropdown-menu.html">
+    <link rel="import" href="nano-calc.html">
+    <link rel="import" href="currency-list.html">
+    <style is="custom-style">
       paper-item {
         display: block;
       }
 
+      code {
+        font-family: Consolas, 'Courier New', Courier, Monaco, monospace;
+        color: black;
+      }
+
+      .dropdown {
+        --editable-dropdown-menu: {
+          display: inline-block;
+          margin-right: 8px;
+          text-align: left;
+          width: 180px;
+        };
+      }
+
       .demo-paper-dropdown-menu {
+        font-family: 'Roboto', 'Noto', Helvetica, sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 24px;
         text-align: left;
         margin: auto;
         width: 180px;
+      }
+
+      @media (max-width: 640px) {
+
+        body {
+          font-size: 14px;
+          margin: 0;
+          padding: 4px;
+          background-color: var(--paper-grey-50);
+        }
+
+        .horizontal-section {
+          background-color: white;
+          padding: 8px;
+          margin-right: 4px;
+          min-width: 200px;
+
+          @apply(--shadow-elevation-2dp);
+        }
+
+        .vertical-section {
+          background-color: white;
+          padding: 8px;
+          margin: 0 4px 8px 4px;
+
+          @apply(--shadow-elevation-2dp);
+        }
+
       }
     </style>
   </head>
@@ -46,57 +96,50 @@
                       error-message="Number only!"
                       value="{{rawNumber}}"></paper-input>
           <h3>Language</h3>
-          <paper-dropdown-menu id="lang-attr"
+          <editable-dropdown-menu id="lang-attr"
                               label="lang"
-                              class="demo-paper-dropdown-menu"
-                              selected-item-label="{{lang}}"> 
-            <paper-menu class="dropdown-content" 
-                        attr-for-selected="label">
-              <template is="dom-repeat" items="{{parameterValues.lang}}">
-                <paper-item label="{{item}}">{{item}}</paper-item>
-              </template>
-            </paper-menu>
-          </paper-dropdown-menu>
+                              class="dropdown"
+                              pattern="[a-zA-Z][a-zA-Z-]*"
+                              error-message="locale name expected!"
+                              items="{{parameterValues.lang}}"
+                              value="{{lang}}"
+                              editable
+                              default-value="{{parameterValues.lang.0.value}}">
+          </editable-dropdown-menu>
           <h3>Options</h3>
-          <paper-dropdown-menu id="style-option"
+          <editable-dropdown-menu id="style-option"
                               label="style"
-                              class="demo-paper-dropdown-menu"
-                              selected-item-label="{{options.style}}"> 
-            <paper-menu class="dropdown-content" 
-                        attr-for-selected="label">
-              <template is="dom-repeat" items="{{parameterValues.style}}">
-                <paper-item label="{{item}}">{{item}}</paper-item>
-              </template>
-            </paper-menu>
-          </paper-dropdown-menu>
-          <paper-dropdown-menu id="currency-option"
+                              class="dropdown"
+                              pattern="[a-zA-Z]*"
+                              items="{{parameterValues.style}}"
+                              value="{{options.style}}"
+                              default-value="{{parameterValues.style.0.value}}">
+          </editable-dropdown-menu>
+          <editable-dropdown-menu id="currency-option"
                               label="currency"
-                              class="demo-paper-dropdown-menu"
-                              selected-item-label="{{options.currency}}"
-                              disabled="{{_disableCurrencyOptions(options.style)}}"> 
-            <paper-menu class="dropdown-content" 
-                        attr-for-selected="label">
-              <template is="dom-repeat" items="{{parameterValues.currency}}">
-                <paper-item label="{{item}}">{{item}}</paper-item>
-              </template>
-            </paper-menu>
-          </paper-dropdown-menu>
-          <paper-dropdown-menu id="currency-display-option"
-                              label="currencyDisplay"
-                              class="demo-paper-dropdown-menu"
-                              selected-item-label="{{options.currencyDisplay}}"
-                              disabled="{{_disableCurrencyOptions(options.style)}}"> 
-            <paper-menu class="dropdown-content" 
-                        attr-for-selected="label">
-              <template is="dom-repeat" items="{{parameterValues.currencyDisplay}}">
-                <paper-item label="{{item}}">{{item}}</paper-item>
-              </template>
-            </paper-menu>
-          </paper-dropdown-menu>
+                              class="dropdown"
+                              pattern="[a-zA-Z]*"
+                              items="{{parameterValues.currency}}"
+                              value="{{options.currency}}"
+                              default-value="USD"
+                              editable
+                              disabled="{{_disableCurrencyOptions(options.style)}}">
+          </editable-dropdown-menu>
+
+          <paper-input-autocomplete id="currency-display-option"
+            label="currencyDisplay"
+            class="demo-paper-dropdown-menu"
+            source="{{parameterValues.currencyDisplay}}"
+            value="{{_currencyDisplayObject}}"
+            search-property="label"
+            suggestions-in-overlay>
+          </paper-input-autocomplete>
           <h2>Output<h2>
           <i18n-number lang="{{lang}}" options="{{options}}">{{rawNumber}}</i18n-number>
         </template>
         <script>
+          var currencyList = document.createElement('currency-list');
+          var labelList = currencyList.labelList;
           function mixin (base, extend) {
             for (var i in extend) {
               base[i] = extend[i];
@@ -120,32 +163,32 @@
               },
               lang: {
                 type: String,
-                value: 'en'
+                value: 'en',
+                observer: 'langChanged'
+              },
+              _currencyDisplayObject: {
+                type: Object,
+                observer: '_currencyDisplayObjectChanged'
               },
               parameterValues: {
                 type: Object,
                 value: function () {
                   return {
                     lang: [
-                      'en',
-                      'en-GB',
-                      'ja',
-                      'fr'
+                      { value: 'en', label: 'en English (US)' },
+                      { value: 'en-GB', label: 'en-GB English (UK)' },
+                      { value: 'ja', label: 'ja Japanese' },
+                      { value: 'fr', label: 'fr French' }
                     ],
                     style: [
-                      'decimal',
-                      'currency',
-                      'percent'
+                      { value: 'decimal', label: 'decimal' },
+                      { value: 'currency', label: 'currency' },
+                      { value: 'percent', label: 'percent' }
                     ],
-                    currency: [
-                      'USD',
-                      'EUR',
-                      'JPY',
-                      'CNY'
-                    ],
+                    currency: labelList,
                     currencyDisplay: [
-                      'symbol',
-                      'name'
+                      { value: 'symbol', label: 'symbol' },
+                      { value: 'name', label: 'name' }
                     ]
                   };
                 }
@@ -156,14 +199,45 @@
             ],
 
             listeners: {
+              'dom-change': 'domChanged'
             },
 
             _disableCurrencyOptions: function (style) {
               return style !== 'currency';
+            },
+
+            behaviors: [
+              {
+                attached: function () {
+                  console.log('demo: attached lang = ' + demo.lang);
+                }
+              }
+            ],
+
+            langChanged: function (v) {
+              console.log('langChanged: lang = ' + v);
+            },
+
+            domChanged: function () {
+              
+              demo.parameterValues.currency = currencyList.labelList;
+              demo.parameterValues.currency.push({ value: '+', label: 'New...' });
+              demo.notifyPath('parameterValues', demo.parameterValues, true);
+              this.unlisten('dom-change', this.domChanged);
+            },
+
+            _currencyDisplayObjectChanged: function (obj) {
+              demo.options.currencyDisplay = obj.value;
+              demo.notifyPath('options', demo.options, true);
             }
 
           });
         </script>
+      </div>
+      <div class="vertical-section">
+        <h2><code>&lt;nano-calc&gt;</code></h2>
+
+        <nano-calc></nano-calc>
       </div>
     </div>
   </body>
