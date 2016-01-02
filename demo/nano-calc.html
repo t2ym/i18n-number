@@ -150,6 +150,13 @@
 
   </template>
   <script>
+  if (!Number.isNaN) {
+    // polyfill Number.isNaN for IE11
+    Number.isNaN = function (value) {
+      return typeof value === 'number' && isNaN(value);
+    };
+  }
+
   Polymer({
     is: 'nano-calc',
     properties: {
