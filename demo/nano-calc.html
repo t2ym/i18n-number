@@ -440,10 +440,14 @@
         case '*=':
         case '/=':
         case '*%':
-          this.m += this.x;
+          if (!Number.isNaN(this.x)) {
+            this.m += this.x;
+          }
           break;
         default:
-          this.m += this.y;
+          if (!Number.isNaN(this.y)) {
+            this.m += this.y;
+          }
           break;
         }
         break;
