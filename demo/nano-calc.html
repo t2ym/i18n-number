@@ -198,7 +198,8 @@
     },
 
     listeners: {
-      'keypress': 'onKeyPress'
+      'keypress': 'onKeyPress',
+      'keyup': 'onKeyUp'
     },
 
     observers: [
@@ -352,6 +353,21 @@
         break;
       default:
         //this.input = key;
+        break;
+      }
+      return false;
+    },
+
+    onKeyUp: function (e) {
+      var keyCode = e.keyCode;
+      console.log('onKeyUp: ' + keyCode);
+      switch (keyCode) {
+      case 8:
+        if (this.input) {
+          this.input = this.input.slice(0, -1);
+        }
+        break;
+      default:
         break;
       }
       return false;
