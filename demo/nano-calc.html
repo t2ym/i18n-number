@@ -103,8 +103,8 @@
 
     </style>
 
-    <table id="frame" tabindex="-1" class="frame"><tr><td>
-      <div id="display" class="display-section layout vertical">
+    <table id="frame" class="frame"><tr><td>
+      <div id="display" tabindex="-1" class="display-section layout vertical">
         <div class="layout horizontal status-display">
           <div class="status flex"></div>
           <div class="status">{{_memory(m)}}</div>
@@ -287,7 +287,7 @@
         this.input = key;
         break;
       }
-      this.$.frame.focus();
+      this.$.display.focus();
     },
 
     onKeyPress: function (e) {
