@@ -474,15 +474,16 @@
             switch (op) {
             case '+':
               this.x = this.y + this.x;
+              op = '';
               break;
             case '-':
               this.x = this.y - this.x;
+              op = '';
               break;
             default:
               break;
             }
             this.y = NaN;
-            op = '';
             break;
           case '/':
             this.x /= this.y;
