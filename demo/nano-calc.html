@@ -19,7 +19,7 @@
         font-size: 30px;
         width: auto;
         height: 34px;
-        padding: 8px;
+        padding: 0px 8px 8px 8px;
         margin: 0px;
         min-width: 100px;
         background-color: rgba(180,202,108,1.0);
@@ -38,7 +38,7 @@
         .digits-display {
           font-size: 24px;
           height: 28px;
-          padding: 8px;
+          padding: 0px 8px 8px 8px;
           margin: 0px;
         }
 
@@ -74,10 +74,31 @@
       .keypad {
 
       }
+
+      .status-display {
+        font-size: 16px;
+        height: 16px;
+        padding: 0px;
+        margin: 0px;
+        background-color: rgba(180,202,108,1.0);
+      }
+
+      .status {
+        width: 16px;
+        min-width: 16px;
+        padding-right: 8px;
+        text-align: center;
+      }
     </style>
 
     <table id="frame" tabindex="-1" class="frame"><tr><td>
-      <div id="display" class="display-section">
+      <div id="display" class="display-section layout vertical">
+        <div class="layout horizontal status-display">
+          <div class="status flex"></div>
+          <div class="status">{{_memory(m)}}</div>
+          <div class="status">{{_constant(op)}}</div>
+          <div class="status">{{_operator(op)}}</div>
+        </div>
         <span class="layout horizontal digits-display">
           <span class="flex"></span>
           <i18n-number id="value" 
@@ -88,7 +109,7 @@
       <div id="keypad" class="keypad">
         <template is="dom-repeat"
                   items='[ 
-                    [ [ "+/-", "±" ], [ "MR", "MR" ], [ "M-", "M-" ], [ "M+", "M+" ], [ "/", "/" ] ],
+                    [ [ "+/-", "±" ], [ "MR", "MR" ], [ "M-", "M-" ], [ "M+", "M+" ], [ "/", "÷" ] ],
                     [ [ "%", "%" ], [ "7", "7" ], [ "8", "8" ], [ "9", "9" ], [ "*", "×" ] ],
                     [ [ "sqrt", "√" ], [ "4", "4" ], [ "5", "5" ], [ "6", "6" ], [ "-", "-" ] ],
                     [ [ "C", "C" ], [ "1", "1" ], [ "2", "2" ], [ "3", "3" ], [ "+", "+" ] ],
@@ -583,6 +604,40 @@
         break;
       }
       this.input = '';
+    },
+
+    _memory: function (m) {
+      return m ? 'M' : '';
+    },
+
+    _constant: function (op) {
+      return op && op.indexOf('=') > 0 ? 'K' : '';
+    },
+
+    _operator: function (op) {
+      var opStatus;
+      switch (op) {
+      case '+':
+      case '+=':
+        opStatus = '+';
+        break;
+      case '-':
+      case '-=':
+        opStatus = '-';
+        break;
+      case '*':
+      case '*=':
+        opStatus = '×';
+        break;
+      case '/':
+      case '/=':
+        opStatus = '÷';
+        break;
+      default:
+        opStatus = '';
+        break;
+      }
+      return opStatus;
     }
 
   });
