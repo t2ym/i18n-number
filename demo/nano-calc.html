@@ -306,6 +306,11 @@
         case '/=':
           this.x = NaN;
           break;
+        case '*%':
+          this.x = NaN;
+          this.y = NaN;
+          this.op =  '';
+          break;
         default:
           this.y = NaN;
           break;
