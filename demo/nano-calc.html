@@ -312,7 +312,13 @@
           this.op =  '';
           break;
         default:
-          this.y = NaN;
+          if (Number.isNaN(this.y)) {
+            this.x = NaN;
+            this.op = '';
+          }
+          else {
+            this.y = 0;
+          }
           break;
         }
         break;
