@@ -316,21 +316,42 @@
       case '8':
       case '9':
       case '.':
-      case 'e':
         this.input += key;
         break;
       case '+':
       case '-':
       case '*':
       case '/':
+      case '%':
         this.input = key;
+        break;
+      case 'm':
+        this.input = 'M+';
+        break;
+      case 'M':
+        this.input = 'M-';
+        break;
+      case 'r':
+        this.input = 'MR';
+        break;
+      case 'n':
+        this.input = '+/-';
+        break;
+      case 's':
+        this.input = 'sqrt';
+        break;
+      case 'c':
+        this.input = 'C';
+        break;
+      case 'C':
+        this.input = 'AC';
         break;
       case '=':
       case '\r':
         this.input = '=';
         break;
       default:
-        this.input = key;
+        //this.input = key;
         break;
       }
       return false;
