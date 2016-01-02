@@ -204,13 +204,15 @@
         }
       default:
         switch (this.op) {
+        case '*%':
+          this.op = '';
+          this.y = NaN;
         case '':
         case '=':
         case '+=':
         case '-=':
         case '*=':
         case '/=':
-        case '*%':
           this.x = newValue ? Number(newValue) : NaN;
           break;
         default:
