@@ -92,7 +92,7 @@
                     [ [ "%", "%" ], [ "7", "7" ], [ "8", "8" ], [ "9", "9" ], [ "*", "×" ] ],
                     [ [ "sqrt", "√" ], [ "4", "4" ], [ "5", "5" ], [ "6", "6" ], [ "-", "-" ] ],
                     [ [ "C", "C" ], [ "1", "1" ], [ "2", "2" ], [ "3", "3" ], [ "+", "+" ] ],
-                    [ [ "AC", "AC" ], [ "0", "0" ], [ ".", "." ], [ "EXP", "EXP" ], [ "=", "=" ] ]
+                    [ [ "AC", "AC" ], [ "0", "0" ], [ ".", "." ], [ "BS", "➤" ], [ "=", "=" ] ]
                   ]' as="row">
           <div class="layout vertical">
             <div class="layout horizontal">
@@ -191,12 +191,10 @@
       case 'MR':
         this.calculate(newValue);
         break;
-      case 'EXP':
-        break;
       case '':
         if (oldValue && 
             oldValue.length === 1 &&
-            '1234567890'.indexOf(oldValue) > 0) {
+            '1234567890.'.indexOf(oldValue) > 0) {
 
         }
         else {
