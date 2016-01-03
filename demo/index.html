@@ -237,7 +237,20 @@
       <div class="vertical-section">
         <h2><code>&lt;nano-calc&gt;</code> using <code>&lt;i18n-number&gt;</code> for display</h2>
 
-        <nano-calc></nano-calc>
+        <template is="dom-bind" id="calc">
+          <nano-calc input="{{input}}"
+                     x="{{x}}"
+                     y="{{y}}"
+                     op="{{op}}"
+                     m="{{m}}"></nano-calc>
+          <br>
+
+          <span>input = {{input}}</span><br>
+          <span>x = {{x}}</span><br>
+          <span>y = {{y}}</span><br>
+          <span>op = {{op}}</span><br>
+          <span>m = {{m}}</span>
+        </template>
       </div>
     </div>
   </body>
