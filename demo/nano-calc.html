@@ -173,27 +173,33 @@
       input: {
         type: String,
         value: '',
+        notify: true,
         observer: 'onInputChange'
       },
       value: {
         type: String,
-        observer: 'onValueChange'
+        observer: 'onValueChange',
+        notify: true
       },
       x: {
         type: Number,
-        value: NaN
+        value: NaN,
+        notify: true
       },
       y: {
         type: Number,
-        value: NaN
+        value: NaN,
+        notify: true
       },
       op: {
         type: String,
-        value: ''
+        value: '',
+        notify: true
       },
       m: {
         type: Number,
-        value: 0
+        value: 0,
+        notify: true
       }
     },
 
