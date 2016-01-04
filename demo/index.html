@@ -11,11 +11,22 @@
     <link rel="import" href="../../paper-item/paper-item.html">
     <link rel="import" href="../../paper-styles/demo-pages.html">
     <link rel="import" href="../../paper-input-autocomplete/paper-input-autocomplete.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
     <link rel="import" href="../i18n-number.html">
     <link rel="import" href="editable-dropdown-menu.html">
     <link rel="import" href="nano-calc.html">
     <link rel="import" href="currency-list.html">
+    <style is="custom-style" include="demo-pages-shared-styles">
+      .vertical-section-container {
+        max-width: 768px;
+      }
+    </style>
     <style is="custom-style">
+      --demo-snippet-code {
+        @apply(--paper-font-code1);
+      }
+  
       paper-item {
         display: block;
       }
@@ -73,184 +84,240 @@
       }
     </style>
   </head>
-  <body>
-    <h1><code>&lt;i18n-number&gt;</code> Demo</h1>
+  <body unresolved>
+    <div class="vertical-section-container centered">
 
-    <div class="vertical-section-container">
-      <div class="vertical-section">
-        <h2>Currency - USD in en</h2>
-        <i18n-number 
-          lang="en"
-          options='{ "style": "currency", "currency": "USD" }' 
-          offset="1">123456.789</i18n-number>
-        <h2>Number in en</h2>
-        <i18n-number lang="en">123456.789</i18n-number>
-      </div>
-      <div class="vertical-section">
-        <template is="dom-bind" id="demo">
-          <h2>Parameters<h2>
-          <h3>Number</h3>
-          <paper-input label="Raw number input" 
-                      auto-validate
-                      pattern="[0-9]*([.][0-9]*)?"
-                      error-message="Number only!"
-                      value="{{rawNumber}}"></paper-input>
-          <h3>Language</h3>
-          <editable-dropdown-menu id="lang-attr"
-                              label="lang"
-                              class="dropdown"
-                              pattern="[a-zA-Z][a-zA-Z-]*"
-                              error-message="locale name expected!"
-                              items="{{parameterValues.lang}}"
-                              value="{{lang}}"
-                              editable
-                              default-value="{{parameterValues.lang.0.value}}">
-          </editable-dropdown-menu>
-          <h3>Options</h3>
-          <editable-dropdown-menu id="style-option"
-                              label="style"
-                              class="dropdown"
-                              pattern="[a-zA-Z]*"
-                              items="{{parameterValues.style}}"
-                              value="{{options.style}}"
-                              default-value="{{parameterValues.style.0.value}}">
-          </editable-dropdown-menu>
-          <editable-dropdown-menu id="currency-option"
-                              label="currency"
-                              class="dropdown"
-                              pattern="[a-zA-Z]*"
-                              items="{{parameterValues.currency}}"
-                              value="{{options.currency}}"
-                              default-value="USD"
-                              editable
-                              disabled="{{_disableCurrencyOptions(options.style)}}">
-          </editable-dropdown-menu>
+      <h1><code>&lt;i18n-number&gt;</code> Demo</h1>
 
-          <paper-input-autocomplete id="currency-display-option"
-            label="currencyDisplay"
-            class="demo-paper-dropdown-menu"
-            source="{{parameterValues.currencyDisplay}}"
-            value="{{_currencyDisplayObject}}"
-            search-property="label"
-            suggestions-in-overlay>
-          </paper-input-autocomplete>
-          <h2>Output<h2>
-          <i18n-number lang="{{lang}}" options="{{options}}">{{rawNumber}}</i18n-number>
-        </template>
+      <div class="vertical-section-container">
+        <h2>Number in English (en) locale</h2>
+        <demo-snippet class="centered-demo">
+          <template>
+            <i18n-number lang="en">123456.78</i18n-number>
+          </template>
+          <script type="text/markdown">
+            <i18n-number lang="en">123456.78</i18n-number>
+          </script>
+        </demo-snippet>
+
+        <h2>Currency - USD in English (en) locale</h2>
+        <demo-snippet class="centered-demo">
+          <template>
+            <i18n-number 
+              lang="en"
+              options='{ "style": "currency", "currency": "USD" }' 
+              >123456.78</i18n-number>
+          </template>
+          <script type="text/markdown">
+            <i18n-number 
+              lang="en"
+              options='{ "style": "currency", "currency": "USD" }' 
+              >123456.78</i18n-number>
+          </script>
+        </demo-snippet>
+
+        <h2>Digits display for <code>&lt;nano-calc&gt;</code></h2>
+        <demo-snippet class="centered-demo">
+          <template>
+            <nano-calc x="123456.789"></nano-calc>
+          </template>
+          <script type="text/markdown">
+            <dom-module id="nano-calc">
+              <template>
+                ...
+                <span class="layout horizontal digits-display">
+                  <span class="flex"></span>
+                  <i18n-number id="value" 
+                    formatted="{{value}}"
+                    options='{ "maximumFractionDigits": 16 }'
+                    >{{pickDisplayValue(x,y,op)}}</i18n-number>
+                  </span>
+                </span>
+                ...
+              </template>
+              ...
+            </dom-module> 
+          </script>
+        </demo-snippet>
+
         <script>
-          var currencyList = document.createElement('currency-list');
-          var labelList = currencyList.labelList;
-          function mixin (base, extend) {
-            for (var i in extend) {
-              base[i] = extend[i];
-            }
-          }
-          mixin(demo, {
-            properties: {
-              rawNumber: {
-                type: String,
-                value: '12.34'
-              },
-              options: {
-                type: Object,
-                value: function () { 
-                  return { 
-                    style: 'decimal', 
-                    currency: 'USD', 
-                    currencyDisplay: 'symbol' 
-                  };
-                }
-              },
-              lang: {
-                type: String,
-                value: 'en',
-                observer: 'langChanged'
-              },
-              _currencyDisplayObject: {
-                type: Object,
-                observer: '_currencyDisplayObjectChanged'
-              },
-              parameterValues: {
-                type: Object,
-                value: function () {
-                  return {
-                    lang: [
-                      { value: 'en', label: 'en English (US)' },
-                      { value: 'en-GB', label: 'en-GB English (UK)' },
-                      { value: 'ja', label: 'ja Japanese' },
-                      { value: 'fr', label: 'fr French' }
-                    ],
-                    style: [
-                      { value: 'decimal', label: 'decimal' },
-                      { value: 'currency', label: 'currency' },
-                      { value: 'percent', label: 'percent' }
-                    ],
-                    currency: labelList,
-                    currencyDisplay: [
-                      { value: 'symbol', label: 'symbol' },
-                      { value: 'name', label: 'name' }
-                    ]
-                  };
-                }
+          window.addEventListener('WebComponentsReady', function () {
+            var demoSnippets = document.querySelectorAll('demo-snippet');
+            Array.prototype.forEach.call(demoSnippets, function (demo) {
+              var script = Polymer.dom(demo).queryDistributedElements('script')[0];
+
+              if (!script) {
+                return;
               }
-            },
 
-            observers: [
-            ],
-
-            listeners: {
-              'dom-change': 'domChanged'
-            },
-
-            _disableCurrencyOptions: function (style) {
-              return style !== 'currency';
-            },
-
-            behaviors: [
-              {
-                attached: function () {
-                  console.log('demo: attached lang = ' + demo.lang);
-                }
+              var snippet = script.innerHTML;
+              var match = snippet.match(/\n([ ]*)/);
+              if (match && match[1]) {
+                var lines = snippet.split(/\n/);
+                snippet = lines.map(function (line) {
+                            if (line.indexOf(match[1]) === 0) {
+                              line = line.slice(match[1].length);               
+                            }
+                            return line;
+                          }).join('\n');
               }
-            ],
 
-            langChanged: function (v) {
-              console.log('langChanged: lang = ' + v);
-            },
+              snippet = '```\n' + snippet + '\n```';
+              snippet = snippet.replace(/=""/g, '');
 
-            domChanged: function () {
-              
-              demo.parameterValues.currency = currencyList.labelList;
-              demo.parameterValues.currency.push({ value: '+', label: 'New...' });
-              demo.notifyPath('parameterValues', demo.parameterValues, true);
-              this.unlisten('dom-change', this.domChanged);
-            },
-
-            _currencyDisplayObjectChanged: function (obj) {
-              demo.options.currencyDisplay = obj.value;
-              demo.notifyPath('options', demo.options, true);
-            }
-
+              demo._markdown = snippet;
+            });
           });
         </script>
-      </div>
-      <div class="vertical-section">
-        <h2><code>&lt;nano-calc&gt;</code> using <code>&lt;i18n-number&gt;</code> for display</h2>
 
-        <template is="dom-bind" id="calc">
-          <nano-calc input="{{input}}"
-                     x="{{x}}"
-                     y="{{y}}"
-                     op="{{op}}"
-                     m="{{m}}"></nano-calc>
-          <br>
+        <div class="vertical-section">
+          <template is="dom-bind" id="demo">
+            <h2>Parameters<h2>
+            <h3>Number</h3>
+            <paper-input label="Raw number input" 
+                        auto-validate
+                        pattern="[0-9]*([.][0-9]*)?"
+                        error-message="Number only!"
+                        value="{{rawNumber}}"></paper-input>
+            <h3>Language</h3>
+            <editable-dropdown-menu id="lang-attr"
+                                label="lang"
+                                class="dropdown"
+                                pattern="[a-zA-Z][a-zA-Z-]*"
+                                error-message="locale name expected!"
+                                items="{{parameterValues.lang}}"
+                                value="{{lang}}"
+                                editable
+                                default-value="{{parameterValues.lang.0.value}}">
+            </editable-dropdown-menu>
+            <h3>Options</h3>
+            <editable-dropdown-menu id="style-option"
+                                label="style"
+                                class="dropdown"
+                                pattern="[a-zA-Z]*"
+                                items="{{parameterValues.style}}"
+                                value="{{options.style}}"
+                                default-value="{{parameterValues.style.0.value}}">
+            </editable-dropdown-menu>
+            <editable-dropdown-menu id="currency-option"
+                                label="currency"
+                                class="dropdown"
+                                pattern="[a-zA-Z]*"
+                                items="{{parameterValues.currency}}"
+                                value="{{options.currency}}"
+                                default-value="USD"
+                                editable
+                                disabled="{{_disableCurrencyOptions(options.style)}}">
+            </editable-dropdown-menu>
 
-          <span>input = {{input}}</span><br>
-          <span>x = {{x}}</span><br>
-          <span>y = {{y}}</span><br>
-          <span>op = {{op}}</span><br>
-          <span>m = {{m}}</span>
-        </template>
+            <paper-input-autocomplete id="currency-display-option"
+              label="currencyDisplay"
+              class="demo-paper-dropdown-menu"
+              source="{{parameterValues.currencyDisplay}}"
+              value="{{_currencyDisplayObject}}"
+              search-property="label"
+              suggestions-in-overlay>
+            </paper-input-autocomplete>
+            <h2>Output<h2>
+            <i18n-number lang="{{lang}}" options="{{options}}">{{rawNumber}}</i18n-number>
+          </template>
+          <script>
+            var currencyList = document.createElement('currency-list');
+            var labelList = currencyList.labelList;
+            function mixin (base, extend) {
+              for (var i in extend) {
+                base[i] = extend[i];
+              }
+            }
+            mixin(demo, {
+              properties: {
+                rawNumber: {
+                  type: String,
+                  value: '12.34'
+                },
+                options: {
+                  type: Object,
+                  value: function () { 
+                    return { 
+                      style: 'decimal', 
+                      currency: 'USD', 
+                      currencyDisplay: 'symbol' 
+                    };
+                  }
+                },
+                lang: {
+                  type: String,
+                  value: 'en',
+                  observer: 'langChanged'
+                },
+                _currencyDisplayObject: {
+                  type: Object,
+                  observer: '_currencyDisplayObjectChanged'
+                },
+                parameterValues: {
+                  type: Object,
+                  value: function () {
+                    return {
+                      lang: [
+                        { value: 'en', label: 'en English (US)' },
+                        { value: 'en-GB', label: 'en-GB English (UK)' },
+                        { value: 'ja', label: 'ja Japanese' },
+                        { value: 'fr', label: 'fr French' }
+                      ],
+                      style: [
+                        { value: 'decimal', label: 'decimal' },
+                        { value: 'currency', label: 'currency' },
+                        { value: 'percent', label: 'percent' }
+                      ],
+                      currency: labelList,
+                      currencyDisplay: [
+                        { value: 'symbol', label: 'symbol' },
+                        { value: 'name', label: 'name' }
+                      ]
+                    };
+                  }
+                }
+              },
+
+              observers: [
+              ],
+
+              listeners: {
+                'dom-change': 'domChanged'
+              },
+
+              _disableCurrencyOptions: function (style) {
+                return style !== 'currency';
+              },
+
+              behaviors: [
+                {
+                  attached: function () {
+                    console.log('demo: attached lang = ' + demo.lang);
+                  }
+                }
+              ],
+
+              langChanged: function (v) {
+                console.log('langChanged: lang = ' + v);
+              },
+
+              domChanged: function () {
+                
+                demo.parameterValues.currency = currencyList.labelList;
+                demo.parameterValues.currency.push({ value: '+', label: 'New...' });
+                demo.notifyPath('parameterValues', demo.parameterValues, true);
+                this.unlisten('dom-change', this.domChanged);
+              },
+
+              _currencyDisplayObjectChanged: function (obj) {
+                demo.options.currencyDisplay = obj.value;
+                demo.notifyPath('options', demo.options, true);
+              }
+
+            });
+          </script>
+        </div>
       </div>
     </div>
   </body>
