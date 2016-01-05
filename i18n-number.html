@@ -1,7 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <!--
-`<i18n-number>` is an interface element for Intl.NumberFormat 
+`<i18n-number>` renders a number in international formats by Intl.NumberFormat 
 (http://www.ecma-international.org/ecma-402/1.0/#sec-11.1) object.
 If Intl.NumberFormat is unavailable, Number.toLocaleString() is used as a fallback. 
 
@@ -11,9 +11,10 @@ If Intl.NumberFormat is unavailable, Number.toLocaleString() is used as a fallba
                  >123456.78</i18n-number>
 
 The element can be cooperatively used for UI localization with 
-`BehaviorsStore.I18nBehavior` and `<template-text>` element.
+`BehaviorsStore.I18nBehavior` behavior and `<template-text>` element.
+(They are work in progress.)
 
-The above example is rendered as follows.
+This example renders the following number string.
 
     $123,455.78
 
