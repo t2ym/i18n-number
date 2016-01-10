@@ -16,10 +16,38 @@
     <link rel="import" href="../i18n-number.html">
     <link rel="import" href="editable-dropdown-menu.html">
     <link rel="import" href="nano-calc.html">
-    <link rel="import" href="currency-list.html">
+    <link rel="import" href="i18n-number-demo.html">
     <style is="custom-style" include="demo-pages-shared-styles">
       .vertical-section-container {
         max-width: 768px;
+      }
+
+      @media (max-width: 640px) {
+
+        body {
+          font-size: 14px;
+          margin: 0;
+          padding: 4px;
+          background-color: var(--paper-grey-50);
+        }
+
+        .horizontal-section {
+          background-color: white;
+          padding: 8px;
+          margin-right: 4px;
+          min-width: 200px;
+
+          @apply(--shadow-elevation-2dp);
+        }
+
+        .vertical-section {
+          background-color: white;
+          padding: 8px;
+          margin: 0 4px 8px 4px;
+
+          @apply(--shadow-elevation-2dp);
+        }
+
       }
     </style>
     <style is="custom-style">
@@ -32,8 +60,31 @@
       }
 
       code {
-        font-family: Consolas, 'Courier New', Courier, Monaco, monospace;
+        font-family: 'Roboto Mono', 'Consolas', 'Menlo', monospace;
         color: black;
+      }
+
+      .input {
+        font-family: 'Roboto', sans-serif;
+        font-size: 16px;
+        border-width: 0px;
+        outline-width: 0px;
+      }
+
+      .select {
+        font-family: 'Roboto', sans-serif;
+        font-size: 16px;
+        outline-width: 0px;
+        border-width: 0px;
+        background-color: rgba(255,255,255,0.0);
+      }
+
+      option {
+        position: relative;
+        top: -1;
+        color: black;
+        outline-width: 0px;
+        border-width: 0px;
       }
 
       .dropdown {
@@ -116,6 +167,13 @@
           </script>
         </demo-snippet>
 
+        <h2><code>&lt;i18n-number&gt;</code> with different parameters</h2>
+        <demo-snippet id="demo-snippet" class="left-aligned-demo" _markdown="{{markdown}}">
+          <template>
+            <i18n-number-demo id="i18n-number-demo"></i18n-number-demo>
+          </template>
+        </demo-snippet>
+
         <h2>Digits display for <code>&lt;nano-calc&gt;</code></h2>
         <demo-snippet class="centered-demo">
           <template>
@@ -144,7 +202,7 @@
           window.addEventListener('WebComponentsReady', function () {
             var demoSnippets = document.querySelectorAll('demo-snippet');
             Array.prototype.forEach.call(demoSnippets, function (demo) {
-              var script = Polymer.dom(demo).queryDistributedElements('script')[0];
+              var script = Polymer.dom(demo).queryDistributedElements('script[type="text/markdown"]')[0];
 
               if (!script) {
                 return;
@@ -154,12 +212,13 @@
               var match = snippet.match(/\n([ ]*)/);
               if (match && match[1]) {
                 var lines = snippet.split(/\n/);
-                snippet = lines.map(function (line) {
-                            if (line.indexOf(match[1]) === 0) {
-                              line = line.slice(match[1].length);               
-                            }
-                            return line;
-                          }).join('\n');
+                snippet = 
+                  lines.map(function (line) {
+                    if (line.indexOf(match[1]) === 0) {
+                      line = line.slice(match[1].length);               
+                    }
+                    return line;
+                  }).join('\n');
               }
 
               snippet = '```\n' + snippet + '\n```';
@@ -168,12 +227,39 @@
               demo._markdown = snippet;
             });
           });
+          var demoSnippet = document.querySelector('demo-snippet#demo-snippet');
+          demoSnippet.addEventListener('markdown-changed', function (e) {
+            demoSnippet._markdown = e.detail.markdown;
+          });
         </script>
 
+<!--
         <div class="vertical-section">
-          <template is="dom-bind" id="demo">
+          <template is="dom-bind" id="demox">
+            <h2>Output<h2>
+            <i18n-number class="number" lang="{{lang}}" options="{{options}}">{{raw}}</i18n-number>
+
             <h2>Parameters<h2>
-            <h3>Number</h3>
+            <h3>raw</h3>
+            <div>
+              <select class="select">
+                <option value="123456.789">123456.789</option>
+                <option value="Not a number">Not a number</option>
+                <option value="ABC">ABC</option>
+              </select>
+              <input id="raw" class="input" is="iron-input" list="dlist" autocomplete bind-value="{{raw}}">
+              <datalist id="dlist">
+                <option value="123456.789">
+                <option value="Not a number">
+                <option value="ABC">
+              </datalist>
+            </div>
+
+
+            <h3>lang</h3>
+            
+
+
             <paper-input label="Raw number input" 
                         auto-validate
                         pattern="[0-9]*([.][0-9]*)?"
@@ -218,22 +304,20 @@
               search-property="label"
               suggestions-in-overlay>
             </paper-input-autocomplete>
-            <h2>Output<h2>
-            <i18n-number lang="{{lang}}" options="{{options}}">{{rawNumber}}</i18n-number>
           </template>
           <script>
-            var currencyList = document.createElement('currency-list');
-            var labelList = currencyList.labelList;
+          /*
             function mixin (base, extend) {
               for (var i in extend) {
                 base[i] = extend[i];
               }
             }
+
             mixin(demo, {
               properties: {
-                rawNumber: {
+                raw: {
                   type: String,
-                  value: '12.34'
+                  value: '123456.789'
                 },
                 options: {
                   type: Object,
@@ -316,9 +400,11 @@
               }
 
             });
+          */
           </script>
         </div>
       </div>
     </div>
+-->
   </body>
 </html>

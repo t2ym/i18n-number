@@ -1,0 +1,158 @@
+<link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../paper-input/paper-input.html">
+<link rel="import" href="../../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../paper-menu/paper-menu.html">
+<link rel="import" href="../../paper-item/paper-item.html">
+<link rel="import" href="../../paper-styles/demo-pages.html">
+<link rel="import" href="../../paper-input-autocomplete/paper-input-autocomplete.html">
+<link rel="import" href="../i18n-number.html">
+<link rel="import" href="currency-list.html">
+<dom-module id="i18n-number-demo">
+  <template>
+    <style>
+    .input {
+      width: 180px;
+    }
+    .dropdown-menu {
+      width: 180px;
+    }
+    .parameters {
+      padding: 8px;
+      margin: 16px 4px 8px 4px;
+      @apply(--shadow-elevation-2dp);              
+    }
+    </style>
+    <i18n-number id="number" class="number" lang="{{lang}}" options="{{options}}">{{raw}}</i18n-number>
+
+    <div class="parameters">
+      <paper-input id="raw"
+                  class="input"
+                  label="Raw number input"
+                  auto-validate
+                  pattern="[0-9]*([.][0-9]*)?"
+                  error-message="Number only!"
+                  value="{{raw}}"></paper-input>
+
+      <paper-dropdown-menu id="lang"
+                          label="lang"
+                          class="dropdown-menu">
+        <paper-menu class="dropdown-content"
+                    selected="{{lang}}"
+                    attr-for-selected="name">
+          <template is="dom-repeat" items="{{langList}}">
+            <paper-item name="{{item.value}}">{{item.label}}</paper-item>
+          </template>
+        </paper-menu>
+      </paper-dropdown-menu><br>
+
+      <paper-dropdown-menu id="style"
+                          label="options.style"
+                          class="dropdown-menu"
+                          selected-item="{{selectedItem}}">
+        <paper-menu class="dropdown-content"
+                    selected="{{options.style}}"
+                    attr-for-selected="name">
+          <template is="dom-repeat" items='[ "decimal", "currency", "percent" ]'>
+            <paper-item name="{{item}}">{{item}}</paper-item>
+          </template>
+        </paper-menu>
+      </paper-dropdown-menu>
+
+      <paper-dropdown-menu id="currency"
+                          label="options.currency"
+                          class="dropdown-menu">
+        <paper-menu class="dropdown-content"
+                    selected="{{options.currency}}"
+                    attr-for-selected="name">
+          <template is="dom-repeat" items="{{currencyList}}" sort="_compareCurrency">
+            <paper-item name="{{item.value}}">{{item.label}}</paper-item>
+          </template>
+        </paper-menu>
+      </paper-dropdown-menu>
+
+      <paper-dropdown-menu id="currencyDislplay"
+                          label="options.currencyDisplay"
+                          class="dropdown-menu">
+        <paper-menu class="dropdown-content"
+                    selected="{{options.currencyDisplay}}"
+                    attr-for-selected="name">
+          <template is="dom-repeat" items='[ "symbol", "name" ]'>
+            <paper-item name="{{item}}">{{item}}</paper-item>
+          </template>
+        </paper-menu>
+      </paper-dropdown-menu>
+    </div>
+  </template>
+  <script>
+    var currencyList = document.createElement('currency-list');
+    Polymer({
+      is: 'i18n-number-demo',
+      properties: {
+        lang: {
+          type: String,
+          value: 'fr'
+        },
+        raw: {
+          type: String,
+          value: '123456.78'
+        },
+        options: {
+          type: Object,
+          value: {
+            style: 'currency',
+            currency: 'USD',
+            currencyDisplay: 'name'
+          }
+        },
+        currencyList: {
+          type: Array,
+          value: currencyList.labelList
+        },
+        langList: {
+          type: Array,
+          value: [
+            { value: 'en', label: 'en English (US)' },
+            { value: 'en-GB', label: 'en-GB English (UK)' },
+            { value: 'de', label: 'de German' },
+            { value: 'es', label: 'es Spanish' },
+            { value: 'fr', label: 'fr French' },
+            { value: 'ja', label: 'ja Japanese' },
+            { value: 'zh-Hans', label: 'zh-Hans Simplified Chinese' },
+            { value: 'zh-Hant', label: 'zh-Hant Traditional Chinese' },
+            { value: 'ru', label: 'ru Russian' }
+          ]
+        },
+        markdown: {
+          type: String,
+          notify: true,
+          computed: '_getMarkDown(raw,lang,options.style,options.currency,options.currencyDisplay)',
+          observer: '_markdownChanged'
+        }
+      },
+
+      attached: function () {
+        this.fire('markdown-changed', { markdown: this.markdown });
+      },
+
+      _markdownChanged: function (markdown) {
+        this.fire('markdown-changed', { markdown: markdown });
+      },
+
+      _getMarkDown: function (raw, lang, style, currency, currencyDisplay) {
+        var markdown = '\n\nTag with the above parameters\n```\n' +
+          '<i18n-number \n' + 
+          '  lang="' + lang + '"\n' +
+          '  options=\'{ "style": "' + style + '", "currency": "' + currency + '", "currencyDisplay": "' + currencyDisplay + '" }\'\n' +
+          '  >' + raw + '</i18n-number>\n' +
+          '\n```';
+        return markdown;
+      },
+
+      _compareCurrency: function (a, b) {
+        var la = a ? a.label : '';
+        var lb = b ? b.label : '';
+        return la.localeCompare(lb);
+      }
+    });
+  </script>
+</dom-module>
