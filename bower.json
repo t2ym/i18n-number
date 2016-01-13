@@ -13,7 +13,7 @@
     "i18n",
     "internationalization"
   ],
-  "license": "https://github.com/t2ym/i18n-number/LICENSE.md",
+  "license": "BSD-2-Clause",
   "homepage": "https://t2ym.github.com/t2ym/i18n-number/",
   "ignore": [
     "**/.*",
