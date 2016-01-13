@@ -4,6 +4,18 @@ Wrapper element for Intl.NumberFormat.
 
 [Demo](http://t2ym.github.io/i18n-number/components/i18n-number/demo) and [API Docs](http://t2ym.github.io/i18n-number/components/i18n-number/)
 
+### Install
+
+```
+    bower install --save i18n-number
+```
+
+### Import
+
+```html
+    <link rel="import" href="/path/to/bower_components/i18n-number/i18n-number.html">
+```
+
 ### Usage
 
 ```html
@@ -17,12 +29,6 @@ This renders as follows:
 
 ```
     $123,456.78
-```
-
-### Install
-
-```
-    bower install i18n-number
 ```
 
 ### License
