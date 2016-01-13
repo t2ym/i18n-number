@@ -1,8 +1,8 @@
-[Demo](https://t2ym.github.com/t2ym/i18n-number/demo), [API Docs](https://t2ym.github.com/t2ym/i18n-number), and [Tests](https://t2ym.github.com/t2ym/i18n-number/test)
-
-## <i18n-number>
+### i18n-number
 
 Wrapper element for Intl.NumberFormat.
+
+[Demo](https://t2ym.github.com/t2ym/i18n-number/demo), [API Docs](https://t2ym.github.com/t2ym/i18n-number), and [Tests](https://t2ym.github.com/t2ym/i18n-number/test)
 
 ### Usage
 
