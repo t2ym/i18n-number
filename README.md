@@ -2,7 +2,7 @@
 
 Wrapper element for Intl.NumberFormat.
 
-[Demo](https://t2ym.github.io/i18n-number/demo), [API Docs](https://t2ym.github.io/i18n-number), and [Tests](https://t2ym.github.io/i18n-number/test)
+[Demo](http://t2ym.github.io/i18n-number/components/i18n-number/demo), [API Docs](http://t2ym.github.io/i18n-number/components/i18n-number/), and [Tests](http://t2ym.github.io/i18n-number/components/i18n-number/test)
 
 ### Usage
 
