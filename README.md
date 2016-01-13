@@ -1,6 +1,6 @@
 ### i18n-number
 
-Wrapper element for Intl.NumberFormat.
+Wrapper element for [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat).
 
 [Demo](http://t2ym.github.io/i18n-number/components/i18n-number/demo) and [API Docs](http://t2ym.github.io/i18n-number/components/i18n-number/)
 
