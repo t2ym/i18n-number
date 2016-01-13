@@ -1,10 +1,10 @@
 {
   "name": "i18n-number",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "authors": [
     "Tetsuya Mori <t2y3141592@gmail.com>"
   ],
-  "description": "A wrapper element for Intl.NumberFormat",
+  "description": "Wrapper element for Intl.NumberFormat",
   "main": "i18n-number.html",
   "keywords": [
     "polymer",
@@ -13,8 +13,8 @@
     "i18n",
     "internationalization"
   ],
-  "license": "MIT",
-  "homepage": "https://github.com/t2ym/i18n-number/",
+  "license": "https://github.com/t2ym/i18n-number/LICENSE.md",
+  "homepage": "https://t2ym.github.com/t2ym/i18n-number/",
   "ignore": [
     "**/.*",
     "node_modules",
