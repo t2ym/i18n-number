@@ -4,7 +4,7 @@ Wrapper element for [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs
 
 [Demo](https://t2ym.github.io/i18n-number/components/i18n-number/demo) and [API Docs](https://t2ym.github.io/i18n-number/components/i18n-number/)
 
-![i18n-number-demo](https://raw.githubusercontent.com/wiki/t2ym/i18n-number/i18n-number-demo.gif)
+<img src="https://raw.githubusercontent.com/wiki/t2ym/i18n-number/i18n-number-demo.gif" width="600px">
 
 ### Install
 
