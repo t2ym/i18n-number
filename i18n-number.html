@@ -116,28 +116,11 @@ This example renders the following number string.
 
     ready: function () {
       this._setupObservers();
-      //console.log('i18n-number: ready: raw = ' + this.textNode.data);
       this.raw = this.textNode.data;
     },
 
     attached: function () {
-      if (this.textNode) {
-        if (!this.observer) {
-          // reattached
-          this._setupObservers();
-        }
-        //console.log('i18n-number: attached: raw = ' + this.textNode.data);
-        this.raw = this.textNode.data;
-      }
-    },
-
-    detached: function () {
-      if (this.textNode) {
-        //console.log('i18n-number: detached');
-        this.observer.disconnect();
-        Polymer.dom(this).unobserveNodes(this.nodeObserver);
-        this.observer = null;
-      }
+      this.raw = this.textNode.data;
     },
 
     /**
