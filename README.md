@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/t2ym/i18n-number.svg?branch=master)](https://travis-ci.org/t2ym/i18n-number)
+
 ### i18n-number
 
 Wrapper element for [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat).
