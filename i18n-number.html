@@ -242,7 +242,7 @@ This example renders the following number string.
       if (!lang) {
         lang = this.DEFAULT_LANG;
       }
-      if (Intl && Intl.NumberFormat) {
+      if (window.Intl && window.Intl.NumberFormat) {
         try {
           return new Intl.NumberFormat(lang, options).format(number);
         }
