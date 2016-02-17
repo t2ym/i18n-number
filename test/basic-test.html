@@ -132,6 +132,7 @@ suite('<i18n-number>', function () {
       rawNumber: rawNumber1,
       number: number1,
       options: {},
+      assign: undefined,
       formatted: formatted1_en
     },
     { 
@@ -370,17 +371,48 @@ suite('<i18n-number>', function () {
         }
       });
 
-      test('formatted property is set as ' + params.formatted, function () {
-        updateModel(el, params.assign);
-        assert.isString(el.formatted, 'formatted is a string');
-        assert.equal(el.formatted, params.formatted);
+      test('formatted property is set as ' + params.formatted, function (done) {
+        if (params.assign || typeof el.formatted === 'undefined') {
+          el.addEventListener('rendered', function formattedRendered (e) {
+            if (typeof el.formatted !== 'undefined') {
+              assert.isString(el.formatted, 'formatted is a string');
+              assert.equal(el.formatted, params.formatted);
+              el.removeEventListener('rendered', formattedRendered);
+              done();
+            }
+            return false;
+          });
+          updateModel(el, params.assign);
+        }
+        else {
+          assert.isString(el.formatted, 'formatted is a string');
+          assert.equal(el.formatted, params.formatted);
+          done();
+        }
       });
 
-      test('renders the formatted number ' + params.formatted, function () {
-        updateModel(el, params.assign);
-        assert.equal(el.$.number.textContent, params.formatted);
+      test('renders the formatted number ' + params.formatted, function (done) {
+        if (params.assign || typeof el.formatted === 'undefined') {
+          el.addEventListener('rendered', function textContentRendered (e) {
+            if (typeof el.formatted !== 'undefined') {
+              assert.equal(el.$.number.textContent, params.formatted);
+              el.removeEventListener('rendered', textContentRendered);
+              done();
+            }
+            return false;
+          });
+          updateModel(el, params.assign);
+        }
+        else {
+          assert.equal(el.$.number.textContent, params.formatted);
+          done();
+        }
       });
 
+      teardown(function () {
+        el = undefined;
+        document.querySelector('test-fixture#' + params.fixture).restore();
+      });
     });
   });
 
