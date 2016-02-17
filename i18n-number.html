@@ -8,7 +8,8 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
 <!--
 `<i18n-number>` renders a number in international formats by Intl.NumberFormat 
 (http://www.ecma-international.org/ecma-402/1.0/#sec-11.1) object.
-If Intl.NumberFormat is unavailable, Number.toLocaleString() is used as a fallback. 
+If Intl.NumberFormat is unavailable, [Intl.js Polyfill](https://github.com/andyearnshaw/Intl.js) and 
+its locale modules are dynamically loaded as a fallback.
 
     <i18n-number lang="en"
                  options='{ "style": "currency", "currency": "USD" }'
@@ -207,6 +208,9 @@ This example renders the following number string.
 
       /**
        * Formatted string rendered for UI
+       *
+       * Note:
+       *   - While Intl.js Polyfill locale module is being loaded, the value is set as `undefined` until load completion.
        */
       formatted: {
         type: String,
