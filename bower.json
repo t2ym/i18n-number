@@ -21,7 +21,8 @@
     "bower_components"
   ],
   "dependencies": {
-    "polymer": "^1.2.0"
+    "polymer": "^1.2.0",
+    "intl": "^1.1.0"
   },
   "devDependencies": {
     "web-component-tester": "^3.4.0",

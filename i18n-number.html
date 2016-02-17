@@ -29,6 +29,115 @@ This example renders the following number string.
     <span id="number"></span>
   </template>
   <script>
+  (function () {
+  var intlLibraryScript;
+  var intlLibraryLoadingStatus = 'initializing';
+
+  /**
+   * Set up Intl polyfill if required
+   */
+  function _setupIntlPolyfill () {
+    // Polyfill Intl if required
+    var intlLibraryUrl = this.resolveUrl('../intl/dist/Intl.min.js');
+    if (window.Intl) {
+      if (window.IntlPolyfill && window.Intl === window.IntlPolyfill) {
+        intlLibraryLoadingStatus = 'loaded';
+      }
+      else {
+        intlLibraryLoadingStatus = 'native';
+      }
+    }
+    else {
+      intlLibraryLoadingStatus = 'loading';
+      intlLibraryScript = document.createElement('script');
+      intlLibraryScript.setAttribute('src', intlLibraryUrl);
+      intlLibraryScript.setAttribute('id', 'intl-js-library');
+      intlLibraryScript.addEventListener('load', function intlLibraryLoaded (e) {
+        intlLibraryLoadingStatus = 'loaded';
+        e.target.removeEventListener('load', intlLibraryLoaded);
+        return false;
+      });
+      var s = document.querySelector('script') || document.body;
+      s.parentNode.insertBefore(intlLibraryScript, s);
+    }
+  }
+
+  /**
+   * Set up polyfill locale of Intl if required
+   *
+   * @param {String} locale Target locale to polyfill
+   * @param {Function} callback Callback function to handle locale load
+   * @return {Boolean} true if supported; false if callback will be called
+   */
+  function _setupIntlPolyfillLocale (locale, callback) {
+    if (!window.IntlPolyfill) {
+      switch (intlLibraryLoadingStatus) {
+      case 'loading':
+        if (intlLibraryScript) {
+          var libraryLoadedBindThis = function (e) {
+            _setupIntlPolyfillLocale.call(this, locale, callback);
+            e.target.removeEventListener('load', libraryLoadedBindThis);
+          }.bind(this);
+          intlLibraryScript.addEventListener('load', libraryLoadedBindThis);
+          return false;
+        }
+        else {
+          console.error('Intl.js is not being loaded');
+        }
+        break;
+      // impossible cases
+      case 'initializing':
+      case 'loaded':
+      case 'native':
+      default:
+        break;
+      }
+    }
+    else {
+      if (intlLibraryLoadingStatus !== 'native') {
+        var supported = Intl.NumberFormat.supportedLocalesOf(locale, { localeMatcher: 'lookup' });
+        var script;
+        var parts;
+        var intlScript;
+        if (supported.length === 0) {
+          // load the locale
+          parts = locale.match(/^([a-zA-Z]{1,3})([-_].*)$/);
+          if (parts) {
+            locale = parts[1].toLowerCase + parts[2].replace(/_/g, '-').toUpperCase();
+          }
+          else {
+            locale = locale.toLowerCase();
+          }
+          script = document.querySelector('script#intl-js-locale-' + locale);
+          if (!script) {
+            script = document.createElement('script');
+            script.setAttribute('id', 'intl-js-locale-' + locale);
+            script.setAttribute('src', this.resolveUrl('../intl/locale-data/jsonp/' + locale + '.js'));
+            var intlLocaleLoadedBindThis = function intlLocaleLoaded (e) {
+              callback.call(this, locale);
+              e.target.removeEventListener('load', intlLocaleLoadedBindThis);
+              return false;
+            }.bind(this);
+            script.addEventListener('load', intlLocaleLoadedBindThis);
+            intlScript = document.querySelector('script#intl-js-library') || document.body;
+            intlScript.parentNode.insertBefore(script, intlScript.nextSibling);
+          }
+          else {
+            // already loading
+            var anotherIntlLocaleLoadedBindThis = function (e) {
+              callback.call(this, locale);
+              e.target.removeEventListener('load', anotherIntlLocaleLoadedBindThis);
+              return false;
+            }.bind(this);
+            script.addEventListener('load', anotherIntlLocaleLoadedBindThis);
+          }
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   Polymer({
     is: 'i18n-number',
 
@@ -113,6 +222,13 @@ This example renders the following number string.
      * Default locale constant 'en'
      */
     DEFAULT_LANG: 'en',
+
+    /**
+     * Start loading Intl polyfill before its registration
+     */
+    beforeRegister: function () {
+      _setupIntlPolyfill.call(this);
+    },
 
     ready: function () {
       this._setupObservers();
@@ -242,16 +358,34 @@ This example renders the following number string.
       if (!lang) {
         lang = this.DEFAULT_LANG;
       }
-      if (window.Intl && window.Intl.NumberFormat) {
+      switch (intlLibraryLoadingStatus) {
+      case 'loaded':
+      case 'loading':
+      default:
+        try {
+          if (_setupIntlPolyfillLocale.call(this, lang, function (locale) {
+            this.render();
+          }.bind(this))) {
+            return new Intl.NumberFormat(lang, options).format(number);
+          }
+          else {
+            // waiting for callback
+            return undefined;
+          }
+        }
+        catch (e) {
+          return number.toString();
+        }
+        break;
+      case 'native':
+        // native
         try {
           return new Intl.NumberFormat(lang, options).format(number);
         }
         catch (e) {
-          return number.toLocaleString();
+          return number.toString();
         }
-      }
-      else {
-        return number.toLocaleString(lang, options);
+        break;
       }
     },
 
@@ -280,9 +414,11 @@ This example renders the following number string.
         this.number = undefined;
         this.formatted = '';
       }
-      this.$.number.textContent = this.formatted;
+      this.$.number.textContent = this.formatted ? this.formatted : '';
       //console.log('i18n-number: _render ' + this.formatted);
-      this.fire('rendered');
+      if (typeof this.formatted !== 'undefined') {
+        this.fire('rendered');
+      }
     },
 
     /**
@@ -305,5 +441,6 @@ This example renders the following number string.
       this._render(this.lang, this.options, this.raw, this.offset);
     }
   });
+  })();
   </script>
 </dom-module>
