@@ -114,23 +114,67 @@ This example renders the following number string.
             script = document.createElement('script');
             script.setAttribute('id', 'intl-js-locale-' + locale);
             script.setAttribute('src', this.resolveUrl('../intl/locale-data/jsonp/' + locale + '.js'));
-            var intlLocaleLoadedBindThis = function intlLocaleLoaded (e) {
-              callback.call(this, locale);
-              e.target.removeEventListener('load', intlLocaleLoadedBindThis);
+            var intlLocaleLoadedBindThis = function (e) {
+              console.log(this.is + ' intlLocaleLoadedBindThis with timestamp = ' + this.timestamp);
+              if (e.target === script) {
+                e.target.removeEventListener('load', intlLocaleLoadedBindThis);
+                callback.call(this, locale);
+              }
               return false;
             }.bind(this);
+            var intlLocaleLoadErrorBindThis = function (e) {
+              console.log(this.is + ' intlLocaleLoadErrorBindThis with timestamp = ' + this.timestamp);
+              if (e.target === script) {
+                e.target.removeEventListener('error', intlLocaleLoadErrorBindThis);
+                script.setAttribute('loaderror','');
+                var enSupport = Intl.NumberFormat.supportedLocalesOf(this.DEFAULT_LANG, { localeMatcher: 'lookup'});
+                if (enSupport.length > 0) {
+                  callback.call(this, this.DEFAULT_LANG);
+                }
+                else {
+                  _setupIntlPolyfillLocale.call(this, this.DEFAULT_LANG, callback);
+                }
+                return false;
+              }
+            }.bind(this);
             script.addEventListener('load', intlLocaleLoadedBindThis);
+            script.addEventListener('error', intlLocaleLoadErrorBindThis);
             intlScript = document.querySelector('script#intl-js-library') || document.body;
             intlScript.parentNode.insertBefore(script, intlScript.nextSibling);
           }
-          else {
+          else if (!script.hasAttribute('loaderror')) {
             // already loading
             var anotherIntlLocaleLoadedBindThis = function (e) {
-              callback.call(this, locale);
-              e.target.removeEventListener('load', anotherIntlLocaleLoadedBindThis);
-              return false;
+              if (e.target === script) {
+                callback.call(this, locale);
+                e.target.removeEventListener('load', anotherIntlLocaleLoadedBindThis);
+                return false;
+              }
+            }.bind(this);
+            var anotherIntlLocaleLoadErrorBindThis = function (e) {
+              if (e.target === script) {
+                e.target.removeEventListener('error', anotherIntlLocaleLoadErrorBindThis);
+                var enSupport = Intl.NumberFormat.supportedLocalesOf(this.DEFAULT_LANG, { localeMatcher: 'lookup'});
+                if (enSupport.length > 0) {
+                  callback.call(this, this.DEFAULT_LANG);
+                }
+                else {
+                  _setupIntlPolyfillLocale.call(this, this.DEFAULT_LANG, callback);
+                }
+                return false;
+              }
             }.bind(this);
             script.addEventListener('load', anotherIntlLocaleLoadedBindThis);
+            script.addEventListener('error', anotherIntlLocaleLoadErrorBindThis);
+          }
+          else {
+            var enSupport = Intl.NumberFormat.supportedLocalesOf(this.DEFAULT_LANG, { localeMatcher: 'lookup'});
+            if (enSupport.length > 0) {
+              callback.call(this, this.DEFAULT_LANG);
+            }
+            else {
+              _setupIntlPolyfillLocale.call(this, this.DEFAULT_LANG, callback);
+            }
           }
           return false;
         }
@@ -368,7 +412,8 @@ This example renders the following number string.
       default:
         try {
           if (_setupIntlPolyfillLocale.call(this, lang, function (locale) {
-            this.render();
+            this.lang = locale;
+            this._render.call(this, this.lang, this.options, this.raw, this.offset);
           }.bind(this))) {
             return new Intl.NumberFormat(lang, options).format(number);
           }
