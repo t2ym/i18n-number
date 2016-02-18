@@ -276,6 +276,18 @@ suite('<i18n-number>', function () {
       options: {},
       assign: { offset: offsetInvalid },
       formatted: 'NaN'
+    },
+    { 
+      suite: 'invalid lang value', 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
+      assign: { lang: 'xx' },
+      formatted: formatted1_en
     }
   ];
 
