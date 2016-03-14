@@ -91,6 +91,7 @@ This example renders the following number string.
       case 'loaded':
       case 'native':
       default:
+        /* istanbul ignore next: these cases are impossible */
         break;
       }
     }
@@ -463,6 +464,7 @@ This example renders the following number string.
           }
           break;
         default:
+          /* istanbul ignore next: mutation.type is always characterData */
           break;
         }
       }, this);
@@ -564,6 +566,7 @@ This example renders the following number string.
         catch (e) {
           return number.toString();
         }
+        /* istanbul ignore next: unreachable code due to returns in the same case */
         break;
       case 'native':
         // native
