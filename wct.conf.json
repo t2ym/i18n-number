@@ -1,18 +1,14 @@
 {
   "plugins": {
+    "local": {
+      "browsers": [
+        "chrome",
+        "firefox"
+      ]
+    },
     "sauce": {
       "disabled": false,
       "browsers": [
-        {
-          "browserName":  "Chrome",
-          "platform":     "Windows 10",
-          "version":      ""
-        },
-        {
-          "browserName":  "Firefox",
-          "platform":     "Windows 10",
-          "version":      ""
-        },
         {
           "browserName":  "microsoftedge",
           "platform":     "Windows 10",
@@ -43,6 +39,17 @@
           "platform":     "OS X 10.9",
           "version":      "7"
         }
+      ]
+    },
+    "istanbul": {
+      "dir": "test/coverage-report",
+      "reporters": ["text-summary", "lcov"],
+      "include": [
+        "**/i18n-number.html"
+      ],
+      "exclude": [
+        "/bower_components/**/*",
+        "/test/**/*"
       ]
     }
   }
