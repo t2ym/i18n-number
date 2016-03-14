@@ -113,12 +113,13 @@ suite('<i18n-number>', function () {
   var formatted1_USD = '$123,455.79';
   var formatted1_JPY = '¥123,456';
   var formatted1_offset = '123,454.789';
-  var langs = [ 'fr', 'ja', 'zh-Hans-CN', 'ru', 'zh-yue-Hans-CN', 'zh-CN', 'zh-TW', 'zh-CHS', 'zh-Hans-CN-x-linux' ];
+  var langs = [ 'fr', 'ja', 'zh-Hans-CN', 'ru', 'zh-yue-Hans-CN', 'zh-CN', 'zh-TW', 'zh-CHS', 'zh-Hans-CN-x-linux', '' ];
   var formatted = [
     formatted1_fr,
     formatted1_ja,
     formatted1_en,
     formatted1_fr,
+    formatted1_en,
     formatted1_en,
     formatted1_en,
     formatted1_en,
@@ -434,6 +435,18 @@ suite('<i18n-number>', function () {
       options: {},
       assign: { lang: langs[8] },
       formatted: formatted[8]
+    },
+    { 
+      suite: 'lang value ' + langs[9], 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
+      assign: { lang: langs[9] },
+      formatted: formatted[9]
     }
   ];
 
