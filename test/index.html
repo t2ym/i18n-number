@@ -15,10 +15,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </head>
   <body>
     <script>
+      var hasShadow = Boolean(Element.prototype.createShadowRoot);
+      var nativeShadow = hasShadow && !window.ShadowDOMPolyfill;
       // Load and run all tests (.html, .js):
-      WCT.loadSuites([
+      WCT.loadSuites(nativeShadow ? [
         'basic-test.html',
         'basic-test.html?dom=shadow'
+      ] : [
+        'basic-test.html'
       ]);
     </script>
 
