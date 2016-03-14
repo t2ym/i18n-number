@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/t2ym/i18n-number.svg?branch=master)](https://travis-ci.org/t2ym/i18n-number)
-[![Coverage Status](https://coveralls.io/repos/github/t2ym/i18n-number/badge.svg?branch=master)](https://coveralls.io/github/t2ym/i18n-number?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/t2ym/i18n-number/badge.svg?branch=master&build=26)](https://coveralls.io/github/t2ym/i18n-number?branch=master)
 
 ### i18n-number
 
