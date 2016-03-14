@@ -113,6 +113,17 @@ suite('<i18n-number>', function () {
   var formatted1_USD = '$123,455.79';
   var formatted1_JPY = '¥123,456';
   var formatted1_offset = '123,454.789';
+  var langs = [ 'fr', 'ja', 'zh-Hans-CN', 'ru', 'zh-yue-Hans-CN', 'zh-CN', 'zh-TW', 'zh-Hans-CN-x-linux' ];
+  var formatted = [
+    formatted1_fr,
+    formatted1_ja,
+    formatted1_en,
+    formatted1_fr,
+    formatted1_en,
+    formatted1_en,
+    formatted1_en,
+    formatted1_en
+  ];
   var suites = [
     { 
       suite: 'static value', 
@@ -314,6 +325,102 @@ suite('<i18n-number>', function () {
       options: {},
       assign: { lang: 'ja-CA' },
       formatted: formatted1_ja
+    },
+    { 
+      suite: 'lang value ' + langs[0], 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
+      assign: { lang: langs[0] },
+      formatted: formatted[0]
+    },
+    { 
+      suite: 'lang value ' + langs[1], 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
+      assign: { lang: langs[1] },
+      formatted: formatted[1]
+    },
+    { 
+      suite: 'lang value ' + langs[2], 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
+      assign: { lang: langs[2] },
+      formatted: formatted[2]
+    },
+    { 
+      suite: 'lang value ' + langs[3], 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
+      assign: { lang: langs[3] },
+      formatted: formatted[3]
+    },
+    { 
+      suite: 'lang value ' + langs[4], 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
+      assign: { lang: langs[4] },
+      formatted: formatted[4]
+    },
+    { 
+      suite: 'lang value ' + langs[5], 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
+      assign: { lang: langs[5] },
+      formatted: formatted[5]
+    },
+    { 
+      suite: 'lang value ' + langs[6], 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
+      assign: { lang: langs[6] },
+      formatted: formatted[6]
+    },
+    { 
+      suite: 'lang value ' + langs[7], 
+      fixture: 'bound', 
+      model: { number: rawValue1 }, 
+      rawValue: rawValue1,
+      offset: offset1,
+      rawNumber: rawNumber1,
+      number: number1,
+      options: {},
+      assign: { lang: langs[7] },
+      formatted: formatted[7]
     }
   ];
 
