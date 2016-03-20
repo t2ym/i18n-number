@@ -16,13 +16,13 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
   <body>
 
     <test-fixture id="default">
-      <template>
+      <template is="dom-template">
         <i18n-number></i18n-number>
       </template>
     </test-fixture>
 
     <test-fixture id="static">
-      <template>
+      <template is="dom-template">
         <i18n-number lang="en" options="{}" offset="1">123456.789</i18n-number>
       </template>
     </test-fixture>
@@ -46,7 +46,7 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
     </test-fixture>
 
     <test-fixture id="bound-and-wrapped">
-      <template>
+      <template is="dom-template">
         <bound-i18n-number></bound-i18n-number>
       </template>
     </test-fixture>
@@ -482,12 +482,31 @@ suite('<i18n-number>', function () {
       };
 
       setup(function () {
-        el = fixture(params.fixture, params.model);
+        el = params.model 
+              ? fixture(params.fixture, params.model)
+              : fixture(params.fixture, {});
       });
 
-      test('lang property from attribute', function () {
-        updateModel(el, params.assign);
-        assert.equal(el.lang, lang, 'lang is set');
+      test('lang property from attribute', function (done) {
+        var doneCalled = false;
+        var langPropertyFromAttribute;
+        if (params.assign && typeof params.assign.lang !== 'undefined') {
+          el.addEventListener('rendered', langPropertyFromAttribute = function (e) {
+            if (!doneCalled) {
+              el.removeEventListener('rendered', langPropertyFromAttribute);
+              assert.equal(el.lang, lang, 'lang is set');
+              doneCalled = true;
+              done();
+            }
+            return false;
+          });
+          updateModel(el, params.assign);          
+        }
+        else {
+          updateModel(el, params.assign);          
+          assert.equal(el.lang, lang, 'lang is set');
+          done();      
+        }
       });
 
       test('options property from attribute is set as ' 
@@ -543,12 +562,14 @@ suite('<i18n-number>', function () {
       });
 
       test('formatted property is set as ' + params.formatted, function (done) {
+        var doneCalled = false;
         if (params.assign || typeof el.formatted === 'undefined') {
           el.addEventListener('rendered', function formattedRendered (e) {
-            if (typeof el.formatted !== 'undefined') {
+            if (!doneCalled && typeof el.formatted !== 'undefined') {
               assert.isString(el.formatted, 'formatted is a string');
               assert.equal(el.formatted, params.formatted);
               el.removeEventListener('rendered', formattedRendered);
+              doneCalled = true;
               done();
             }
             return false;
@@ -563,11 +584,13 @@ suite('<i18n-number>', function () {
       });
 
       test('renders the formatted number ' + params.formatted, function (done) {
+        var doneCalled = false;
         if (params.assign || typeof el.formatted === 'undefined') {
           el.addEventListener('rendered', function textContentRendered (e) {
-            if (typeof el.formatted !== 'undefined') {
+            if (!doneCalled && typeof el.formatted !== 'undefined') {
               assert.equal(el.$.number.textContent, params.formatted);
               el.removeEventListener('rendered', textContentRendered);
+              doneCalled = true;
               done();
             }
             return false;
@@ -680,10 +703,13 @@ suite('<i18n-number>', function () {
         });
 
         test('change bound value to ' + rawNumber1, function (done) {
-          el.addEventListener('rendered', function (e) {
-            assert.equal(el.$.number.textContent, '123,456.789', 
-                        'renders the formatted number');    
-            done();
+          el.addEventListener('rendered', function changeBoundValue (e) {
+            if (el.$.number.textContent) {
+              assert.equal(el.$.number.textContent, '123,456.789', 
+                          'renders the formatted number');    
+              el.removeEventListener('rendered', changeBoundValue);
+              done();
+            }
           });
           wrapper.number = rawNumber1;
         });
@@ -697,9 +723,10 @@ suite('<i18n-number>', function () {
         });
 
         test('change bound value to empty', function (done) {
-          el.addEventListener('rendered', function (e) {
+          el.addEventListener('rendered', function changeBoundValueToEmpty (e) {
             assert.equal(el.$.number.textContent, '', 
                         'renders the formatted number');    
+            el.removeEventListener('rendered', changeBoundValueToEmpty);
             done();
           });
           wrapper.number2 = '';
@@ -714,10 +741,13 @@ suite('<i18n-number>', function () {
         });
 
         test('change empty textContent value to ' + rawNumber1, function (done) {
-          el.addEventListener('rendered', function (e) {
-            assert.equal(el.$.number.textContent, '123,456.789', 
-                        'renders the formatted number');    
-            done();
+          el.addEventListener('rendered', function changeEmptyTextContentValue (e) {
+            if (el.$.number.textContent) {
+              assert.equal(el.$.number.textContent, '123,456.789', 
+                          'renders the formatted number');
+              el.removeEventListener('rendered', changeEmptyTextContentValue);
+              done();
+            }
           });
           Polymer.dom(el).textContent = rawNumber1;
         });
@@ -731,10 +761,13 @@ suite('<i18n-number>', function () {
         });
 
         test('change currency options value to JPY', function (done) {
-          el.addEventListener('rendered', function (e) {
-            assert.equal(el.$.number.textContent, '¥123,457', 
-                        'renders the formatted currency');
-            done();
+          el.addEventListener('rendered', function changeCurrencyOptionsValueToJPY (e) {
+            if (el.$.number.textContent) {
+              assert.equal(el.$.number.textContent, '¥123,457', 
+                          'renders the formatted currency');
+              el.removeEventListener('rendered', changeCurrencyOptionsValueToJPY);
+              done();
+            }
           });
           wrapper.options.currency = 'JPY';
           wrapper.notifyPath('options.currency', wrapper.options.currency, true);
@@ -749,10 +782,13 @@ suite('<i18n-number>', function () {
         });
 
         test('change currency options value to JPY and render()', function (done) {
-          el.addEventListener('rendered', function (e) {
-            assert.equal(el.$.number.textContent, '¥123,457', 
-                        'renders the formatted currency');
-            done();
+          el.addEventListener('rendered', function changeCurrencyOptionsValueToJPYAndRender (e) {
+            if (el.$.number.textContent) {
+              assert.equal(el.$.number.textContent, '¥123,457', 
+                          'renders the formatted currency');
+              el.removeEventListener('rendered', changeCurrencyOptionsValueToJPYAndRender);
+              done();
+            }
           });
           wrapper.options.currency = 'JPY';
           el.render();
@@ -767,10 +803,13 @@ suite('<i18n-number>', function () {
         });
 
         test('change bound currency options value to JPY', function (done) {
-          el.addEventListener('rendered', function (e) {
-            assert.equal(el.$.number.textContent, '¥123,457', 
-                        'renders the formatted currency');
-            done();
+          el.addEventListener('rendered', function changeBoundCurrencyOptionsValueToJPY (e) {
+            if (el.$.number.textContent) {              
+              assert.equal(el.$.number.textContent, '¥123,457', 
+                          'renders the formatted currency');
+              el.removeEventListener('rendered', changeBoundCurrencyOptionsValueToJPY);
+              done();
+            }
           });
           wrapper.$.currencySelector.select('JPY');
           //wrapper.notifyPath('options.currency', wrapper.options.currency, true);
