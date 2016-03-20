@@ -421,6 +421,10 @@ This example renders the following number string.
     ready: function () {
       this._setupObservers();
       this.raw = this.textNode.data;
+      if (!this.lang) {
+        // Polyfill non-functional default value for lang property in Safari 7
+        this.lang = this.DEFAULT_LANG;
+      }
     },
 
     attached: function () {
@@ -438,6 +442,11 @@ This example renders the following number string.
       }
       this.observer = new MutationObserver(this._textMutated.bind(this));
       this.observer.observe(this.textNode, { characterData: true });
+      var desc = Object.getOwnPropertyDescriptor(this, 'lang');
+      if (desc && typeof desc.set !== 'function') {
+        // Fix #3. Emulate lang's observer since Safari 7 overrides lang property
+        this.observer.observe(this, { attributes: true, attributeFilter: [ 'lang' ] });
+      }
       this.nodeObserver = Polymer.dom(this).observeNodes(function (info) {
         if (info.addedNodes[0] && 
             info.addedNodes[0].nodeType === info.addedNodes[0].TEXT_NODE) {
@@ -463,8 +472,13 @@ This example renders the following number string.
             this.raw = mutation.target.data;
           }
           break;
+        case 'attributes':
+          if (mutation.attributeName === 'lang') {
+            this._langChanged(this.lang);
+          }
+          break;
         default:
-          /* istanbul ignore next: mutation.type is always characterData */
+          /* istanbul ignore next: mutation.type is characterData or attributes */
           break;
         }
       }, this);
@@ -553,8 +567,8 @@ This example renders the following number string.
       default:
         try {
           if (_setupIntlPolyfillLocale.call(this, lang, function (locale) {
-            this.lang = locale;
-            this._render.call(this, this.lang, this.options, this.raw, this.offset);
+            this.effectiveLang = locale;
+            this._render.call(this, locale, this.options, this.raw, this.offset);
           }.bind(this))) {
             return new Intl.NumberFormat(lang, options).format(number);
           }
