@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/t2ym/i18n-number.svg?branch=master)](https://travis-ci.org/t2ym/i18n-number)
 [![Coverage Status](https://coveralls.io/repos/github/t2ym/i18n-number/badge.svg?branch=master&build=26)](https://coveralls.io/github/t2ym/i18n-number?branch=master)
+[![Bower](https://img.shields.io/bower/v/i18n-number.svg)](https://customelements.io/t2ym/i18n-number/)
 
 ### i18n-number
 
