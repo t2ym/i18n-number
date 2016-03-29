@@ -1,6 +1,6 @@
 {
   "name": "i18n-number",
-  "version": "0.2.4",
+  "version": "1.0.0",
   "description": "Wrapper element for Intl.NumberFormat",
   "main": "i18n-number.html",
   "directories": {
