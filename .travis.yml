@@ -2,6 +2,7 @@ language: node_js
 branches:
   except:
   - gh-pages
+  - 2.0-develop
 sudo: required
 dist: trusty
 before_script:

@@ -21,7 +21,7 @@
     "bower_components"
   ],
   "dependencies": {
-    "polymer": "^1.2.0",
+    "polymer": "#2.0-preview",
     "intl": "^1.1.0"
   },
   "devDependencies": {
@@ -37,5 +37,9 @@
     "marked-element": "PolymerElements/marked-element#~1.1.1",
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#~1.0.3",
     "iron-collapse": "PolymerElements/iron-collapse#~1.0.5"
+  },
+  "resolutions": {
+    "polymer": "2.0-preview",
+    "webcomponentsjs": "v1"
   }
 }
