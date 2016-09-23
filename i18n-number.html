@@ -33,6 +33,7 @@ This example renders the following number string.
   (function () {
   var intlLibraryScript;
   var intlLibraryLoadingStatus = 'initializing';
+  var _setupIntlPolyfillCalled = false;
 
   /**
    * Set up Intl polyfill if required
@@ -412,10 +413,13 @@ This example renders the following number string.
     DEFAULT_LANG: 'en',
 
     /**
-     * Start loading Intl polyfill before its registration
+     * Start loading Intl polyfill only once
      */
-    beforeRegister: function () {
-      _setupIntlPolyfill.call(this);
+    registered: function () {
+      if (!_setupIntlPolyfillCalled) {
+        _setupIntlPolyfillCalled = true;
+        _setupIntlPolyfill.call(this);
+      }
     },
 
     ready: function () {
