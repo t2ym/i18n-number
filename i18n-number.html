@@ -446,11 +446,7 @@ This example renders the following number string.
       }
       this.observer = new MutationObserver(this._textMutated.bind(this));
       this.observer.observe(this.textNode, { characterData: true });
-      var desc = Object.getOwnPropertyDescriptor(this, 'lang');
-      if (Polymer.Element || (desc && typeof desc.set !== 'function')) {
-        // Fix #3. Emulate lang's observer since Safari 7 overrides lang property
-        this.observer.observe(this, { attributes: true, attributeFilter: [ 'lang' ] });
-      }
+      this.observer.observe(this, { attributes: true, attributeFilter: [ 'lang' ] });
       this.nodeObserver = Polymer.dom(this).observeNodes(function (info) {
         if (info.addedNodes[0] && 
             info.addedNodes[0].nodeType === info.addedNodes[0].TEXT_NODE) {
