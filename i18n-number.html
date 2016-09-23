@@ -338,11 +338,11 @@ This example renders the following number string.
        * The typical value is bound to `{{effectiveLang}}` when the containing element has
        * `BehaviorsStore.I18nBehavior`.
        */
-      lang: {
+      _lang: {
         type: String,
         value: 'en',
         observer: '_langChanged',
-        reflectToAttribute: true
+        reflectToAttribute: false
       },
 
       /**
@@ -474,7 +474,7 @@ This example renders the following number string.
           break;
         case 'attributes':
           if (mutation.attributeName === 'lang') {
-            this._langChanged(this.lang);
+            this._lang = this.lang;
           }
           break;
         default:
