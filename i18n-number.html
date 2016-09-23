@@ -443,7 +443,7 @@ This example renders the following number string.
       this.observer = new MutationObserver(this._textMutated.bind(this));
       this.observer.observe(this.textNode, { characterData: true });
       var desc = Object.getOwnPropertyDescriptor(this, 'lang');
-      if (desc && typeof desc.set !== 'function') {
+      if (Polymer.Element || (desc && typeof desc.set !== 'function')) {
         // Fix #3. Emulate lang's observer since Safari 7 overrides lang property
         this.observer.observe(this, { attributes: true, attributeFilter: [ 'lang' ] });
       }
