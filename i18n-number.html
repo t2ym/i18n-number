@@ -416,13 +416,19 @@ This example renders the following number string.
      * Start loading Intl polyfill only once
      */
     registered: function () {
-      if (!_setupIntlPolyfillCalled) {
+      if (!_setupIntlPolyfillCalled &&
+          // Fix #6: Safari 9 with 2.0-preview cannot properly resolve self URL at registered callback
+          this.resolveUrl('.').match(/\/i18n-number\//)) {
         _setupIntlPolyfillCalled = true;
         _setupIntlPolyfill.call(this);
       }
     },
 
     ready: function () {
+      if (!_setupIntlPolyfillCalled) { // Fix #6: For Safari 9
+        _setupIntlPolyfillCalled = true;
+        _setupIntlPolyfill.call(this);
+      }
       this._setupObservers();
       this.raw = this.textNode.data;
       if (!this.lang) {
