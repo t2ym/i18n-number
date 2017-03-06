@@ -2,11 +2,8 @@ language: node_js
 branches:
   except:
   - gh-pages
-  - 2.0-develop
-sudo: required
-dist: trusty
+sudo: false
 before_script:
-- npm install web-component-tester
 - npm install bower
 - export PATH=$PWD/node_modules/.bin:$PATH
 - bower install
@@ -17,15 +14,13 @@ env:
   - secure: kfsihmF0FnLa7efAHsdtdDdBdsy1d5++/x5xnq+w9mZPRSByA1UXKQfsOaX+SWUZ1oViMUF58XiMzCUETdRI4DBGbYP2t8hiCq8hwaWIJEH8bKxqv9CYhmhowt/S59IW11r5P2QploOKGhJsdfcRamQPfviyPuVseYQWla05zRYQc6FWsD2Xl1W2e3JvkXUPFpMF80OQcltnq4PeQ/otSaUXiq91RfiLUx6SCshIYvD6+AaBdOh8Jec1fFbDhJ3wOlSACrPXS0vlwXQLaj+N66XMzE4+dh5h5j1RJ+luLUuzZ+RZXhCZ+WwXQ1fkB8QoxA+1JDGAbca6NUAVf4zWg+2vlMxbOEvo4qDdAjzVvpnnkqGFmagoXD5ql2Z33+woC/U77FiD9Hjc0W+QmwkzE2mHMJ1UMhFZyZVU3lcl4IDIQSaU4o/b+1DH7x3f4d5OL8P95futthblU9jlmnheIHlJRMUe3kaLdxSG0jnVRkRAHiNpiqRbR3XDaHBc7CRaK8fhS6/FD9dGvajIqkhQ4xG9v7du1BepOS3AEGnEMM7m48e3ej7NLtGJMyDESHtvkhCD63hOsTodGPofYENUzS3k1G+/kJiHqbPkR3pCiND9D2Kir445WlTwTgBx9IkMhEn5mXEMy9fioPP0mL1tg/zXBTC18ruaVcutplrt6i4=
 node_js: 4
 addons:
-  firefox: latest
-  apt:
-    sources:
-    - google-chrome
-    - ubuntu-toolchain-r-test
-    packages:
-    - google-chrome-stable
-    - g++-4.8
   sauce_connect: true
 script:
+  - cp -vf test/v1-wct.conf.json wct.conf.json
   - xvfb-run wct
-  - ./node_modules/coveralls/bin/coveralls.js <./test/coverage-report/lcov.info
+  - mv -f bower_components bower_components1
+  - cp -vf test/bower2.json bower.json
+  - bower install
+  - cp -vf test/v2-wct.conf.json wct.conf.json
+  - xvfb-run wct
+  - if [ "${TRAVIS_BRANCH}" != "" ]; then lcov-result-merger 'test/coverage-report*/lcov.info' | ./node_modules/coveralls/bin/coveralls.js || echo success; fi
