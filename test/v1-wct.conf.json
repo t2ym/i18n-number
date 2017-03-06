@@ -58,7 +58,7 @@
       ]
     },
     "istanbul": {
-      "dir": "test/coverage-report",
+      "dir": "test/coverage-report1",
       "reporters": ["text-summary", "lcov"],
       "include": [
         "**/i18n-number.html"
