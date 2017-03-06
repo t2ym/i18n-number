@@ -21,11 +21,11 @@
     "bower_components"
   ],
   "dependencies": {
-    "polymer": "#2.0-preview",
+    "polymer": "^1.8.1",
     "intl": "^1.1.0"
   },
   "devDependencies": {
-    "web-component-tester": "^3.4.0",
+    "web-component-tester": "t2ym/web-component-tester#wct6-plugin",
     "iron-component-page": "PolymerElements/iron-component-page#~1.1.2",
     "iron-selector": "PolymerElements/iron-selector#~1.0.8",
     "iron-flex-layout": "PolymerElements/iron-flex-layout#~1.2.2",
@@ -37,9 +37,5 @@
     "marked-element": "PolymerElements/marked-element#~1.1.1",
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#~1.0.3",
     "iron-collapse": "PolymerElements/iron-collapse#~1.0.5"
-  },
-  "resolutions": {
-    "polymer": "2.0-preview",
-    "webcomponentsjs": "v1"
   }
 }
