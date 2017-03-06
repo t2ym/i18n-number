@@ -36,7 +36,8 @@
     "paper-icon-button": "PolymerElements/paper-icon-button#2.0-preview",
     "marked-element": "PolymerElements/marked-element#2.0-preview",
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#2.0-preview",
-    "iron-collapse": "PolymerElements/iron-collapse#2.0-preview"
+    "iron-collapse": "PolymerElements/iron-collapse#2.0-preview",
+    "promise-polyfill": "polymerlabs/promise-polyfill#^1.0.0"
   },
   "resolutions": {
     "iron-collapse": "2.0-preview",
