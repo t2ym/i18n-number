@@ -10,37 +10,38 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../../web-component-tester/browser.js"></script>
 
+    <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
     <link rel="import" href="../i18n-number.html">
     <link rel="import" href="bound-i18n-number.html">
   </head>
   <body>
 
     <test-fixture id="default">
-      <template is="dom-template">
+      <template>
         <i18n-number></i18n-number>
       </template>
     </test-fixture>
 
     <test-fixture id="static">
-      <template is="dom-template">
+      <template>
         <i18n-number lang="en" options="{}" offset="1">123456.789</i18n-number>
       </template>
     </test-fixture>
 
     <test-fixture id="bound">
-      <template is="dom-template" id="bound-template">
+      <template is="dom-template">
         <i18n-number lang="en" options="{}" offset="1">{{number}}</i18n-number>
       </template>
     </test-fixture>
 
     <test-fixture id="bound-default-options">
-      <template is="dom-template" id="bound-template">
+      <template is="dom-template">
         <i18n-number lang="en" offset="1">{{number}}</i18n-number>
       </template>
     </test-fixture>
 
     <test-fixture id="bound-currency-options">
-      <template is="dom-template" id="bound-template">
+      <template is="dom-template">
         <i18n-number lang="en" options='{ "style": "currency", "currency": "USD" }' offset="1">{{number}}</i18n-number>
       </template>
     </test-fixture>
@@ -52,13 +53,67 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
     </test-fixture>
 
     <script>
+function getFixture(name, model) {
+  return new Promise(function (resolve, reject) {
+    var template = document.querySelector('#' + name);
+    var innerTemplate;
+    var domBind;
+    var container;
+    var content;
+    var element;
+    var bound;
+    if (template) {
+      if (Polymer.LegacyElementMixin) {
+        // Polymer 2.x
+        if (model) {
+          var f = document.querySelector('test-fixture[id=' + name + ']');
+          var t = f.querySelector('template[is=dom-template]');
+          if (t) {
+            var instanceProps = {};
+            var p;
+            for (p in model) {
+              instanceProps[p] = true;
+            }
+            var self = t;
+            t.__templatizeOwner = undefined;
+            t._ctor = Polymer.Templatize.templatize(t, self, {
+              instanceProps: instanceProps,
+              forwardHostProp: function(prop, value) {
+                if (self._instance) {
+                  self._instance.forwardHostProp(prop, value);
+                }
+              }
+            });
+            t.stamp = function (model) {
+              var _instance = new this._ctor(model);
+              return _instance.root;
+            }.bind(t);
+          }
+        }
+        element = fixture(name, model);
+        resolve({ element: element });
+      }
+      else {
+        // Polymer 1.x
+        element = fixture(name, model);
+        resolve({ element: element });
+      }
+    }
+    else {
+      throw new Error('Could not find test fixture ' + name);
+    }    
+  });
+}
+
 suite('<i18n-number>', function () {
 
   suite('default values', function () {
     var el;
 
-    setup(function () {
-      el = fixture('default');
+    suiteSetup(function () {
+      return getFixture('default').then(function (result) {
+        el = result.element;
+      });
     });
 
     test('default lang property', function () {
@@ -454,6 +509,7 @@ suite('<i18n-number>', function () {
 
     suite(params.suite, function () {
       var el;
+      var boundTemplate;
       var rawValue = params.rawValue;
       var fixtureElement;
       var lang = params.assign && params.assign.lang ? params.assign.lang : 'en';
@@ -482,9 +538,10 @@ suite('<i18n-number>', function () {
       };
 
       setup(function () {
-        el = params.model 
-              ? fixture(params.fixture, params.model)
-              : fixture(params.fixture, {});
+        return getFixture(params.fixture, params.model).then(function (result) {
+          el = result.element;
+          boundTemplate = result.boundTemplate;
+        });
       });
 
       test('lang property from attribute', function (done) {
@@ -605,7 +662,10 @@ suite('<i18n-number>', function () {
 
       teardown(function () {
         el = undefined;
-        document.querySelector('test-fixture#' + params.fixture).restore();
+        var f = document.querySelector('test-fixture#' + params.fixture);
+        if (f && typeof f.restore === 'function') {
+          f.restore();
+        }
       });
     });
   });
