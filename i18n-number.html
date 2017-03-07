@@ -269,7 +269,9 @@ This example renders the following number string.
       while (parts.length > 0) {
         // normalize delimiters as -
         // e.g. ja_JP -> ja-JP
-        result.push(parts.join('-'));
+        if (!parts[parts.length - 1].match(/^[xu]$/)) {
+          result.push(parts.join('-'));
+        }
         if (isScriptCode &&
             isCountryCode &&
             parts.length == isExtLangCode + isScriptCode + 2) {
