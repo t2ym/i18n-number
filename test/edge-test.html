@@ -11,6 +11,7 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
     <script src="../../web-component-tester/browser.js"></script>
 
     <script src="../../intl/dist/Intl.js"></script>
+    <script src="../../intl/locale-data/jsonp/xx.js" id="intl-js-locale-xx"></script>
     <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
     <link rel="import" href="../i18n-number.html">
     <link rel="import" href="bound-i18n-number.html">
@@ -169,7 +170,7 @@ suite('<i18n-number>', function () {
   var formatted1_USD = '$123,455.79';
   var formatted1_JPY = '¥123,456';
   var formatted1_offset = '123,454.789';
-  var langs = [ 'fr', 'ja', 'zh-Hans-CN-x-linux', 'ru', 'zh-yue-Hans-CN', 'zh-CN', 'zh-TW', 'zh-CHS', 'zh-Hans-CN', '' ];
+  var langs = [ 'fr', 'ja', 'zh-Hans-CN-x-linux', 'ru', 'zh-yue-Hans-CN', 'zh-CN', 'zh-TW', 'zh-CHS', 'zh-Hans-CN', 'xx' ];
   var formatted = [
     formatted1_fr,
     formatted1_ja,
@@ -301,6 +302,9 @@ suite('<i18n-number>', function () {
       number: number1,
       options: {},
       assign: { lang: langs[9] },
+      op: function () {
+        setTimeout(function () { document.querySelector('script#intl-js-locale-' + langs[9]).dispatchEvent(new Event('error')); }, 1000);
+      },
       formatted: formatted[9]
     }
   ];
@@ -341,6 +345,9 @@ suite('<i18n-number>', function () {
         return getFixture(params.fixture, params.model).then(function (result) {
           el = result.element;
           boundTemplate = result.boundTemplate;
+          if (typeof params.op === 'function') {
+            params.op();
+          }
         });
       });
 
