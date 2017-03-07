@@ -4,7 +4,7 @@ branches:
   - gh-pages
 sudo: false
 before_script:
-- npm install bower t2ym/polymer-cli#wct6-plugin
+- npm install -g bower t2ym/polymer-cli#wct6-plugin
 - export PATH=$PWD/node_modules/.bin:$PATH
 - polymer install --variants
 env:
