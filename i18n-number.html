@@ -75,6 +75,7 @@ This example renders the following number string.
     if (!window.IntlPolyfill) {
       switch (intlLibraryLoadingStatus) {
       case 'loading':
+        /* istanbul ignore else: intlLibraryScript is always set when the status is 'loading' */
         if (intlLibraryScript) {
           var libraryLoadedBindThis = function (e) {
             _setupIntlPolyfillLocale.call(this, locale, callback);
@@ -86,6 +87,7 @@ This example renders the following number string.
         else {
           console.error('Intl.js is not being loaded');
         }
+        /* istanbul ignore next: intlLibraryScript is always set when the status is 'loading' */
         break;
       // impossible cases
       case 'initializing':
@@ -220,6 +222,7 @@ This example renders the following number string.
     var isCountryCode = 0;
     var countryCode;
     var n;
+    /* istanbul ignore if: lang is always a non-null string */
     if (!lang || lang.length === 0) {
       result.push('');
     }
