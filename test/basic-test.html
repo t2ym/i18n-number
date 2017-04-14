@@ -65,6 +65,11 @@ function getFixture(name, model) {
     if (template) {
       if (Polymer.LegacyElementMixin) {
         // Polymer 2.x
+        if (!window.FixtureWrapper) {
+          window.FixtureWrapper = class FixtureWrapper extends Polymer.Element { };
+          customElements.define('fixture-wrapper', FixtureWrapper);
+        }
+
         if (model) {
           var f = document.querySelector('test-fixture[id=' + name + ']');
           var t = f.querySelector('template[is=dom-template]');
@@ -74,7 +79,7 @@ function getFixture(name, model) {
             for (p in model) {
               instanceProps[p] = true;
             }
-            var self = t;
+            var self = new FixtureWrapper();
             t.__templatizeOwner = undefined;
             t._ctor = Polymer.Templatize.templatize(t, self, {
               instanceProps: instanceProps,
