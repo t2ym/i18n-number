@@ -33,6 +33,7 @@ This example renders the following number string.
   (function () {
   var intlLibraryScript;
   var intlLibraryLoadingStatus = 'initializing';
+  var _setupIntlPolyfillCalled = false;
 
   /**
    * Set up Intl polyfill if required
@@ -74,6 +75,7 @@ This example renders the following number string.
     if (!window.IntlPolyfill) {
       switch (intlLibraryLoadingStatus) {
       case 'loading':
+        /* istanbul ignore else: intlLibraryScript is always set when the status is 'loading' */
         if (intlLibraryScript) {
           var libraryLoadedBindThis = function (e) {
             _setupIntlPolyfillLocale.call(this, locale, callback);
@@ -85,6 +87,7 @@ This example renders the following number string.
         else {
           console.error('Intl.js is not being loaded');
         }
+        /* istanbul ignore next: intlLibraryScript is always set when the status is 'loading' */
         break;
       // impossible cases
       case 'initializing':
@@ -219,6 +222,7 @@ This example renders the following number string.
     var isCountryCode = 0;
     var countryCode;
     var n;
+    /* istanbul ignore if: lang is always a non-null string */
     if (!lang || lang.length === 0) {
       result.push('');
     }
@@ -268,7 +272,9 @@ This example renders the following number string.
       while (parts.length > 0) {
         // normalize delimiters as -
         // e.g. ja_JP -> ja-JP
-        result.push(parts.join('-'));
+        if (!parts[parts.length - 1].match(/^[xu]$/)) {
+          result.push(parts.join('-'));
+        }
         if (isScriptCode &&
             isCountryCode &&
             parts.length == isExtLangCode + isScriptCode + 2) {
@@ -338,11 +344,11 @@ This example renders the following number string.
        * The typical value is bound to `{{effectiveLang}}` when the containing element has
        * `BehaviorsStore.I18nBehavior`.
        */
-      lang: {
+      _lang: {
         type: String,
         value: 'en',
         observer: '_langChanged',
-        reflectToAttribute: true
+        reflectToAttribute: false
       },
 
       /**
@@ -412,13 +418,23 @@ This example renders the following number string.
     DEFAULT_LANG: 'en',
 
     /**
-     * Start loading Intl polyfill before its registration
+     * Start loading Intl polyfill only once
      */
-    beforeRegister: function () {
-      _setupIntlPolyfill.call(this);
+    registered: function () {
+      if (!_setupIntlPolyfillCalled &&
+          // Fix #6: Safari 9 with 2.0-preview cannot properly resolve self URL at registered callback
+          this.resolveUrl('.').match(/\/i18n-number\//) &&
+          !this.resolveUrl('..').match(/\/i18n-number\//)) {
+        _setupIntlPolyfillCalled = true;
+        _setupIntlPolyfill.call(this);
+      }
     },
 
     ready: function () {
+      if (!_setupIntlPolyfillCalled) { // Fix #6: For Safari 9
+        _setupIntlPolyfillCalled = true;
+        _setupIntlPolyfill.call(this);
+      }
       this._setupObservers();
       this.raw = this.textNode.data;
       if (!this.lang) {
@@ -442,11 +458,7 @@ This example renders the following number string.
       }
       this.observer = new MutationObserver(this._textMutated.bind(this));
       this.observer.observe(this.textNode, { characterData: true });
-      var desc = Object.getOwnPropertyDescriptor(this, 'lang');
-      if (desc && typeof desc.set !== 'function') {
-        // Fix #3. Emulate lang's observer since Safari 7 overrides lang property
-        this.observer.observe(this, { attributes: true, attributeFilter: [ 'lang' ] });
-      }
+      this.observer.observe(this, { attributes: true, attributeFilter: [ 'lang' ] });
       this.nodeObserver = Polymer.dom(this).observeNodes(function (info) {
         if (info.addedNodes[0] && 
             info.addedNodes[0].nodeType === info.addedNodes[0].TEXT_NODE) {
@@ -474,7 +486,7 @@ This example renders the following number string.
           break;
         case 'attributes':
           if (mutation.attributeName === 'lang') {
-            this._langChanged(this.lang);
+            this._lang = this.lang;
           }
           break;
         default:
