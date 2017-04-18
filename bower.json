@@ -21,7 +21,7 @@
     "bower_components"
   ],
   "dependencies": {
-    "polymer": "^2.0.0-rc.5",
+    "polymer": "^2.0.0-rc.6",
     "intl": "^1.1.0"
   },
   "devDependencies": {
@@ -42,7 +42,7 @@
   "resolutions": {
     "iron-collapse": "2.0-preview",
     "iron-flex-layout": "2.0-preview",
-    "polymer": "^2.0.0-rc.5",
+    "polymer": "^2.0.0-rc.6",
     "iron-selector": "2.0-preview",
     "iron-behaviors": "2.0-preview",
     "paper-styles": "2.0-preview",
@@ -53,7 +53,7 @@
   "variants": {
     "1.x": {
       "dependencies": {
-        "polymer": "^1.8.1",
+        "polymer": "^1.9.1",
         "intl": "^1.1.0"
       },
       "devDependencies": {
@@ -69,6 +69,17 @@
         "marked-element": "PolymerElements/marked-element#~1.1.1",
         "iron-demo-helpers": "PolymerElements/iron-demo-helpers#~1.0.3",
         "iron-collapse": "PolymerElements/iron-collapse#~1.0.5"
+      },
+      "resolutions": {
+        "iron-collapse": "PolymerElements/iron-collapse#~1.0.5",
+        "iron-flex-layout": "PolymerElements/iron-flex-layout#~1.2.2",
+        "polymer": "^1.9.1",
+        "iron-selector": "PolymerElements/iron-selector#~1.0.8",
+        "iron-behaviors": "PolymerElements/iron-behavior#^1.0.18",
+        "paper-styles": "PolymerElements/paper-styles#^1.2.1",
+        "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#^1.0.6",
+        "iron-a11y-keys-behavior": "PolymerElements/iron-a11y-keys-behavior#^1.1.9",
+        "webcomponentsjs": "^0.7.24"
       }
     }
   }
