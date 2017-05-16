@@ -1,12 +1,13 @@
 [![Build Status](https://travis-ci.org/t2ym/i18n-number.svg?branch=master)](https://travis-ci.org/t2ym/i18n-number)
 [![Coverage Status](https://coveralls.io/repos/github/t2ym/i18n-number/badge.svg?branch=master&build=26)](https://coveralls.io/github/t2ym/i18n-number?branch=master)
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/t2ym/i18n-number)
 [![Bower](https://img.shields.io/bower/v/i18n-number.svg)](https://customelements.io/t2ym/i18n-number/)
 
 ### i18n-number
 
 Wrapper element for [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat).
 
-[Demo](https://t2ym.github.io/i18n-number/components/i18n-number/demo) and [API Docs](https://t2ym.github.io/i18n-number/components/i18n-number/)
+[Demo](https://www.webcomponents.org/element/t2ym/i18n-number/demo/demo/index.html) and [API Docs](https://www.webcomponents.org/element/t2ym/i18n-number/elements/i18n-number)
 
 <img src="https://raw.githubusercontent.com/wiki/t2ym/i18n-number/i18n-number-demo.gif" width="600px">
 

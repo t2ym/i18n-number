@@ -5,25 +5,26 @@ branches:
 sudo: required
 dist: trusty
 before_script:
-- npm install bower
+- npm install -g bower t2ym/polymer-cli#wct6-plugin t2ym/web-component-tester-istanbul#0.10.1-wct6.11
 - export PATH=$PWD/node_modules/.bin:$PATH
-- bower install
+- polymer install --variants
 env:
   global:
-  - CXX=g++-4.8
   - secure: bXGLU7yZ89fspI6smiEMDEt0HSoRmQ7/6PTiSEXz1sTOi9Sn3tjwvhKwQ8a/rnx7mbuIB4zHeF6vbZ4eHviMhV0MG/vrOEZiktZv+m6LB+isslpEsEjMun6qDHaz/uXKzBrNbAt8XlSRE5h/+PYaYf4NqdTkABauy2f8WmQClNr/fQ+GKS3IeOe4g6A4Hu9vrXm5m/Oj+sggIVcSlgOQ3U0O7TFVJEB6g8fmZO0/X8MPY2Vons1AZ86OvghBItnyMt6SjDZ9YxAAlM+fKvYJUXR1aBHR8t8JL+xZ+cL3mgZqvuWl+dPgjICala/whc3dFrRets6mqhbnfO+s3c+OvdeTvGeQKYcjdwnsDQE7CzOBkVRZuj63IWb5gfcWe2YJM/hyr1fZkFZYMPNUv0Ktc1SSfUYLQgwKYU9x8/hGdN38rzpJtjuSqTwIfDfNZvR+OJXAatvUUJqFgnYdGbCU46LZIPo2R9iuTkfsWdCO1M7uCcn436ECJhOVt2IOX/k/MiF3VUz1+fuj1WhTpMG4nFD9I4kF7Q+VbdITLogV9E1s9UXS71o7hlQNd0E7qrHzaPffgYTzOWtD+/xeaMN+kG5PbOEhFNgb+kyDltVEtTsKs631nyRrfrME0KNx9whuTgZ6NJi2Q3tL9SwiEVlAtSMbPO2+kYxHIHehgbrIiRE=
   - secure: kfsihmF0FnLa7efAHsdtdDdBdsy1d5++/x5xnq+w9mZPRSByA1UXKQfsOaX+SWUZ1oViMUF58XiMzCUETdRI4DBGbYP2t8hiCq8hwaWIJEH8bKxqv9CYhmhowt/S59IW11r5P2QploOKGhJsdfcRamQPfviyPuVseYQWla05zRYQc6FWsD2Xl1W2e3JvkXUPFpMF80OQcltnq4PeQ/otSaUXiq91RfiLUx6SCshIYvD6+AaBdOh8Jec1fFbDhJ3wOlSACrPXS0vlwXQLaj+N66XMzE4+dh5h5j1RJ+luLUuzZ+RZXhCZ+WwXQ1fkB8QoxA+1JDGAbca6NUAVf4zWg+2vlMxbOEvo4qDdAjzVvpnnkqGFmagoXD5ql2Z33+woC/U77FiD9Hjc0W+QmwkzE2mHMJ1UMhFZyZVU3lcl4IDIQSaU4o/b+1DH7x3f4d5OL8P95futthblU9jlmnheIHlJRMUe3kaLdxSG0jnVRkRAHiNpiqRbR3XDaHBc7CRaK8fhS6/FD9dGvajIqkhQ4xG9v7du1BepOS3AEGnEMM7m48e3ej7NLtGJMyDESHtvkhCD63hOsTodGPofYENUzS3k1G+/kJiHqbPkR3pCiND9D2Kir445WlTwTgBx9IkMhEn5mXEMy9fioPP0mL1tg/zXBTC18ruaVcutplrt6i4=
-node_js: 6
+node_js: stable
 addons:
   firefox: latest
   apt:
     sources:
-    - google-chrome
-    - ubuntu-toolchain-r-test
+      - google-chrome
     packages:
-    - google-chrome-stable
-    - g++-4.8
+      - google-chrome-stable
   sauce_connect: true
 script:
+  - xvfb-run polymer test
+  - mv -f bower_components bower_components2
+  - mv -f bower_components-1.x bower_components
+  - cp -vf test/v1-wct.conf.json wct.conf.json
   - xvfb-run wct
-  - ./node_modules/coveralls/bin/coveralls.js <./test/coverage-report/lcov.info
+  - if [ "${TRAVIS_BRANCH}" != "" ]; then lcov-result-merger 'test/coverage-report*/lcov.info' | ./node_modules/coveralls/bin/coveralls.js || echo success; fi

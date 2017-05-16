@@ -20,9 +20,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Load and run all tests (.html, .js):
       WCT.loadSuites(nativeShadow ? [
         'basic-test.html',
-        'basic-test.html?dom=shadow'
+        'edge-test.html',
+        //'basic-test.html?dom=shadow'
       ] : [
-        'basic-test.html'
+        'basic-test.html',
+        'edge-test.html',
       ]);
     </script>
 

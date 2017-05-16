@@ -10,6 +10,8 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../../web-component-tester/browser.js"></script>
 
+    <script src="../../intl/dist/Intl.js"></script>
+    <script src="../../intl/locale-data/jsonp/xx.js" id="intl-js-locale-xx"></script>
     <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
     <link rel="import" href="../i18n-number.html">
     <link rel="import" href="bound-i18n-number.html">
@@ -173,7 +175,7 @@ suite('<i18n-number>', function () {
   var formatted1_USD = '$123,455.79';
   var formatted1_JPY = '¥123,456';
   var formatted1_offset = '123,454.789';
-  var langs = [ 'fr', 'ja', 'zh-Hans-CN-x-linux', 'ru', 'zh-yue-Hans-CN', 'zh-CN', 'zh-TW', 'zh-CHS', 'zh-Hans-CN', '' ];
+  var langs = [ 'fr', 'ja', 'zh-Hans-CN-x-linux', 'ru', 'zh-yue-Hans-CN', 'zh-CN', 'zh-TW', 'zh-CHS', 'zh-Hans-CN', 'xx' ];
   var formatted = [
     formatted1_fr,
     formatted1_ja,
@@ -187,207 +189,6 @@ suite('<i18n-number>', function () {
     formatted1_en
   ];
   var suites = [
-    { 
-      suite: 'static value', 
-      fixture: 'static', 
-      model: undefined, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: {},
-      formatted: formatted1_en
-    },
-    { 
-      suite: 'bound value', 
-      fixture: 'bound', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: {},
-      assign: undefined,
-      formatted: formatted1_en
-    },
-    { 
-      suite: 'change raw value', 
-      fixture: 'bound', 
-      model: { number: '987654.321' }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: {},
-      assign: { raw: rawValue1 },
-      formatted: formatted1_en
-    },
-    { 
-      suite: 'change lang value', 
-      fixture: 'bound', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: {},
-      assign: { lang: 'fr' },
-      formatted: formatted1_fr
-    },
-    { 
-      suite: 'change options object value', 
-      fixture: 'bound', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: { 'style': 'currency', 'currency': 'USD' },
-      assign: { options: { 'style': 'currency', 'currency': 'USD' } },
-      formatted: formatted1_USD
-    },
-    { 
-      suite: 'change options property values', 
-      fixture: 'bound', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: { 'style': 'currency', 'currency': 'USD' },
-      assign: { 'options': {}, 'options.style': 'currency', 'options.currency': 'USD' },
-      formatted: formatted1_USD
-    },
-    { 
-      suite: 'change currency options object value', 
-      fixture: 'bound-currency-options', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: { 'style': 'currency', 'currency': 'JPY' },
-      assign: { options: { 'style': 'currency', 'currency': 'JPY' } },
-      formatted: formatted1_JPY
-    },
-    { 
-      suite: 'change currency options property values', 
-      fixture: 'bound-currency-options', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: { 'style': 'currency', 'currency': 'JPY' },
-      assign: { 'options.currency': 'JPY' },
-      formatted: formatted1_JPY
-    },
-    { 
-      suite: 'default options object value', 
-      fixture: 'bound-default-options', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: undefined,
-      formatted: formatted1_en
-    },
-    { 
-      suite: 'change options object value from default options', 
-      fixture: 'bound-default-options', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: { 'style': 'currency', 'currency': 'USD' },
-      assign: { options: { 'style': 'currency', 'currency': 'USD' } },
-      formatted: formatted1_USD
-    },
-    { 
-      suite: 'change options property values from default options', 
-      fixture: 'bound-default-options', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: { 'style': 'currency', 'currency': 'USD' },
-      assign: { 'options': {}, 'options.style': 'currency', 'options.currency': 'USD' },
-      formatted: formatted1_USD
-    },
-    { 
-      suite: 'change offset value', 
-      fixture: 'bound', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset2,
-      rawNumber: rawNumber1,
-      number: number2,
-      options: {},
-      assign: { offset: offset2 },
-      formatted: formatted1_offset
-    },
-    { 
-      suite: 'invalid value', 
-      fixture: 'bound', 
-      model: { number: rawValueInvalid }, 
-      rawValue: rawValueInvalid,
-      offset: offset1,
-      rawNumber: NaN,
-      number: NaN,
-      options: {},
-      formatted: 'NaN'
-    },
-    { 
-      suite: 'invalid offset value', 
-      fixture: 'bound', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offsetInvalid,
-      rawNumber: rawValue1,
-      number: NaN,
-      options: {},
-      assign: { offset: offsetInvalid },
-      formatted: 'NaN'
-    },
-    { 
-      suite: 'invalid lang value', 
-      fixture: 'bound', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: {},
-      assign: { lang: 'xx' },
-      formatted: formatted1_en
-    },
-    { 
-      suite: 'case insensitive lang value', 
-      fixture: 'bound', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: {},
-      assign: { lang: 'De-bE' },
-      formatted: formatted1_de_BE
-    },
-    { 
-      suite: 'fallback lang value', 
-      fixture: 'bound', 
-      model: { number: rawValue1 }, 
-      rawValue: rawValue1,
-      offset: offset1,
-      rawNumber: rawNumber1,
-      number: number1,
-      options: {},
-      assign: { lang: 'ja-CA' },
-      formatted: formatted1_ja
-    },
     { 
       suite: 'lang value ' + langs[0], 
       fixture: 'bound', 
@@ -506,6 +307,9 @@ suite('<i18n-number>', function () {
       number: number1,
       options: {},
       assign: { lang: langs[9] },
+      op: function () {
+        setTimeout(function () { document.querySelector('script#intl-js-locale-' + langs[9]).dispatchEvent(new Event('error')); }, 1000);
+      },
       formatted: formatted[9]
     }
   ];
@@ -546,6 +350,9 @@ suite('<i18n-number>', function () {
         return getFixture(params.fixture, params.model).then(function (result) {
           el = result.element;
           boundTemplate = result.boundTemplate;
+          if (typeof params.op === 'function') {
+            params.op();
+          }
         });
       });
 
