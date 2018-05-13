@@ -13,13 +13,13 @@ Wrapper element for [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs
 ### Install
 
 ```
-    bower install --save i18n-number
+    npm install i18n-number
 ```
 
 ### Import
 
-```html
-    <link rel="import" href="/path/to/bower_components/i18n-number/i18n-number.html">
+```js
+    import "i18n-number/i18n-number.js";
 ```
 
 ### Usage
