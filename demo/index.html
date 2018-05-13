@@ -7,19 +7,33 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>i18n-number Demo</title>
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
-    <link rel="import" href="../../paper-input/paper-input.html">
-    <link rel="import" href="../../paper-dropdown-menu/paper-dropdown-menu.html">
-    <link rel="import" href="../../paper-item/paper-item.html">
-    <link rel="import" href="../../paper-styles/demo-pages.html">
-    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
-    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
-    <link rel="import" href="../i18n-number.html">
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script type="module">
+      import "@polymer/iron-flex-layout/iron-flex-layout-classes.js";
+      import "@polymer/paper-input/paper-input.js";
+      import "@polymer/paper-dropdown-menu/paper-dropdown-menu.js";
+      import "@polymer/paper-item/paper-item.js";
+      import "@polymer/paper-styles/demo-pages.js";
+      import "@polymer/iron-demo-helpers/demo-snippet.js";
+      import "@polymer/iron-demo-helpers/demo-pages-shared-styles.js";
+    </script>
+    <script type="module" src="../i18n-number.js"></script>
     <!-- <link rel="import" href="editable-dropdown-menu.html"> -->
-    <link rel="import" href="nano-calc.html">
+    <script type="module" src="./nano-calc.js"></script>
     <!-- <link rel="import" href="i18n-number-demo.html"> -->
-    <style is="custom-style" include="demo-pages-shared-styles">
+    <!-- FIXME(polymer-modulizer):
+        These imperative modules that innerHTML your HTML are
+        a hacky way to be sure that any mixins in included style
+        modules are ready before any elements that reference them are
+        instantiated, otherwise the CSS @apply mixin polyfill won't be
+        able to expand the underlying CSS custom properties.
+        See: https://github.com/Polymer/polymer-modulizer/issues/154
+        -->
+    <script type="module">
+const $_documentContainer = document.createElement('template');
+$_documentContainer.setAttribute('style', 'display: none;');
+
+$_documentContainer.innerHTML = `<style is="custom-style" include="demo-pages-shared-styles">
       .vertical-section-container {
         max-width: 768px;
       }
@@ -51,8 +65,15 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
         }
 
       }
-    </style>
-    <style is="custom-style">
+    </style>`;
+
+document.head.appendChild($_documentContainer.content);
+</script>
+    <script type="module">
+const $_documentContainer = document.createElement('template');
+$_documentContainer.setAttribute('style', 'display: none;');
+
+$_documentContainer.innerHTML = `<style is="custom-style">
       --demo-snippet-code {
         @apply(--paper-font-code1);
       }
@@ -135,10 +156,16 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
         }
 
       }
-    </style>
+    </style>`;
+
+document.head.appendChild($_documentContainer.content);
+</script>
   </head>
   <body unresolved>
-    <div class="vertical-section-container centered">
+    <script type="module">
+const $_documentContainer = document.createElement('template');
+
+$_documentContainer.innerHTML = `<div class="vertical-section-container centered">
 
       <h1><code>&lt;i18n-number&gt;</code> Demo</h1>
 
@@ -150,23 +177,20 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
           </template>
           <script type="text/markdown">
             <i18n-number lang="en">123456.78</i18n-number>
-          </script>
+          <${''}/script>
         </demo-snippet>
 
         <h2>Currency - USD in English (en) locale</h2>
         <demo-snippet class="centered-demo">
           <template>
-            <i18n-number 
-              lang="en"
-              options='{ "style": "currency", "currency": "USD" }' 
-              >123456.78</i18n-number>
+            <i18n-number lang="en" options="{ &quot;style&quot;: &quot;currency&quot;, &quot;currency&quot;: &quot;USD&quot; }">123456.78</i18n-number>
           </template>
           <script type="text/markdown">
             <i18n-number 
               lang="en"
               options='{ "style": "currency", "currency": "USD" }' 
               >123456.78</i18n-number>
-          </script>
+          <${''}/script>
         </demo-snippet>
 
         <!--
@@ -199,43 +223,9 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
               </template>
               ...
             </dom-module> 
-          </script>
+          <${''}/script>
         </demo-snippet>
 
-        <script>
-          window.addEventListener('WebComponentsReady', function () {
-            var demoSnippets = document.querySelectorAll('demo-snippet');
-            Array.prototype.forEach.call(demoSnippets, function (demo) {
-              var script = Polymer.dom(demo).queryDistributedElements('script[type="text/markdown"]')[0];
-
-              if (!script) {
-                return;
-              }
-
-              var snippet = script.innerHTML;
-              var match = snippet.match(/\n([ ]*)/);
-              if (match && match[1]) {
-                var lines = snippet.split(/\n/);
-                snippet = 
-                  lines.map(function (line) {
-                    if (line.indexOf(match[1]) === 0) {
-                      line = line.slice(match[1].length);               
-                    }
-                    return line;
-                  }).join('\n');
-              }
-
-              snippet = '```\n' + snippet + '\n```';
-              snippet = snippet.replace(/=""/g, '');
-
-              demo._markdown = snippet;
-            });
-          });
-          var demoSnippet = document.querySelector('demo-snippet#demo-snippet');
-          demoSnippet.addEventListener('markdown-changed', function (e) {
-            demoSnippet._markdown = e.detail.markdown;
-          });
-        </script>
 
 <!--
         <div class="vertical-section">
@@ -405,10 +395,48 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
 
             });
           */
-          </script>
+          &lt;/script>
         </div>
       </div>
     </div>
 -->
-  </body>
-</html>
+  
+
+</div></div>`;
+/*
+window.addEventListener('WebComponentsReady', function () {
+  var demoSnippets = document.querySelectorAll('demo-snippet');
+  Array.prototype.forEach.call(demoSnippets, function (demo) {
+    var script = Polymer.dom(demo).queryDistributedElements('script[type="text/markdown"]')[0];
+
+    if (!script) {
+      return;
+    }
+
+    var snippet = script.innerHTML;
+    var match = snippet.match(/\\n([ ]*)/);
+    if (match && match[1]) {
+      var lines = snippet.split(/\\n/);
+      snippet = 
+        lines.map(function (line) {
+          if (line.indexOf(match[1]) === 0) {
+            line = line.slice(match[1].length);               
+          }
+          return line;
+        }).join('\\n');
+    }
+
+    snippet = '\`\`\`\\n' + snippet + '\\n\`\`\`';
+    snippet = snippet.replace(/=""/g, '');
+
+    demo._markdown = snippet;
+  });
+});
+var demoSnippet = document.querySelector('demo-snippet#demo-snippet');
+demoSnippet.addEventListener('markdown-changed', function (e) {
+  demoSnippet._markdown = e.detail.markdown;
+});
+*/
+
+document.body.appendChild($_documentContainer.content);
+</script>

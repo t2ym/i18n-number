@@ -1,29 +1,36 @@
 {
   "plugins": {
     "local": {
+      "disabled": true,
       "browsers": [
+        "chrome",
+        "firefox"
       ]
+    },
+    "headless": {
+      "disabled": false,
+      "browsers": [
+        "chrome",
+        "firefox"
+      ],
+      "browsersOptions": {
+        "chrome": [
+          "window-size=1920,1080",
+          "headless",
+          "disable-gpu"
+        ],
+        "firefox": [
+          "--headless"
+        ]
+      }
     },
     "sauce": {
       "disabled": false,
       "browsers": [
         {
-          "browserName":  "chrome",
-          "platform":     "Windows 10"
-        },
-        {
-          "browserName":  "firefox",
-          "platform":     "Windows 10"
-        },
-        {
           "browserName":  "microsoftedge",
           "platform":     "Windows 10",
           "version":      "15"
-        },
-        {
-          "browserName":  "microsoftedge",
-          "platform":     "Windows 10",
-          "version":      "14"
         },
         {
           "browserName":  "internet explorer",
@@ -32,8 +39,8 @@
         },
         {
           "browserName":  "safari",
-          "platform":     "OS X 10.12",
-          "version":      "10"
+          "platform":     "OS X 10.13",
+          "version":      "11"
         },
         {
           "browserName":  "safari",
@@ -46,7 +53,7 @@
       "dir": "test/coverage-report",
       "reporters": ["text-summary", "lcov"],
       "include": [
-        "**/i18n-number.html"
+        "**/i18n-number.js"
       ],
       "exclude": [
         "/bower_components/**/*",

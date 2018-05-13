@@ -7,14 +7,13 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
     <script src="../../intl/dist/Intl.js"></script>
     <script src="../../intl/locale-data/jsonp/xx.js" id="intl-js-locale-xx"></script>
-    <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
-    <link rel="import" href="../i18n-number.html">
-    <link rel="import" href="bound-i18n-number.html">
+    <script type="module" src="../i18n-number.js"></script>
+    <script type="module" src="./bound-i18n-number.js"></script>
   </head>
   <body>
 
@@ -54,7 +53,14 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
       </template>
     </test-fixture>
 
-    <script>
+    <script type="module">
+import '../i18n-number.js';
+import './bound-i18n-number.js';
+import { PolymerElement } from '@polymer/polymer/polymer-element.js';
+import { LegacyElementMixin } from '@polymer/polymer/lib/legacy/legacy-element-mixin.js';
+import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
+import { templatize } from '@polymer/polymer/lib/utils/templatize.js';
+import '@polymer/test-fixture/test-fixture.js';
 function getFixture(name, model) {
   return new Promise(function (resolve, reject) {
     var template = document.querySelector('#' + name);
@@ -65,10 +71,10 @@ function getFixture(name, model) {
     var element;
     var bound;
     if (template) {
-      if (Polymer.LegacyElementMixin) {
-        // Polymer 2.x
+      if (LegacyElementMixin) {
+        // Polymer 3.x
         if (!window.FixtureWrapper) {
-          window.FixtureWrapper = class FixtureWrapper extends Polymer.Element { };
+          window.FixtureWrapper = class FixtureWrapper extends PolymerElement { };
           customElements.define('fixture-wrapper', FixtureWrapper);
         }
 
@@ -83,7 +89,42 @@ function getFixture(name, model) {
             }
             var self = new FixtureWrapper();
             t.__templatizeOwner = undefined;
-            t._ctor = Polymer.Templatize.templatize(t, self, {
+            t._ctor = templatize(t, self, {
+              instanceProps: instanceProps,
+              forwardHostProp: function(prop, value) {
+                if (self._instance) {
+                  self._instance.forwardHostProp(prop, value);
+                }
+              }
+            });
+            t.stamp = function (model) {
+              var _instance = new this._ctor(model);
+              return _instance.root;
+            }.bind(t);
+          }
+        }
+        element = fixture(name, model);
+        resolve({ element: element });
+      }
+      else if (Polymer && Polymer.LegacyElementMixin) {
+        // Polymer 2.x
+        if (!window.FixtureWrapper) {
+          window.FixtureWrapper = class FixtureWrapper extends PolymerElement { };
+          customElements.define('fixture-wrapper', FixtureWrapper);
+        }
+
+        if (model) {
+          var f = document.querySelector('test-fixture[id=' + name + ']');
+          var t = f.querySelector('template[is=dom-template]');
+          if (t) {
+            var instanceProps = {};
+            var p;
+            for (p in model) {
+              instanceProps[p] = true;
+            }
+            var self = new FixtureWrapper();
+            t.__templatizeOwner = undefined;
+            t._ctor = Templatizer.templatize(t, self, {
               instanceProps: instanceProps,
               forwardHostProp: function(prop, value) {
                 if (self._instance) {
@@ -386,7 +427,7 @@ suite('<i18n-number>', function () {
 
       test('textContent is set as ' + rawValue, function () {
         updateModel(el, params.assign);
-        assert.equal(Polymer.dom(el).textContent, rawValue, 'textContent is ' + rawValue);
+        assert.equal(dom(el).textContent, rawValue, 'textContent is ' + rawValue);
       });
 
       test('raw property is set as ' + rawValue, function () {
@@ -487,12 +528,12 @@ suite('<i18n-number>', function () {
     var el;
 
     var reattach = function (placeholder) {
-      var num = Polymer.dom(placeholder).querySelector('#num');
-      var empty = Polymer.dom(placeholder).querySelector('#empty');
-      Polymer.dom(placeholder).removeChild(num);
-      Polymer.dom(placeholder).removeChild(empty);
-      Polymer.dom(placeholder).appendChild(num);
-      Polymer.dom(placeholder).appendChild(empty);
+      var num = dom(placeholder).querySelector('#num');
+      var empty = dom(placeholder).querySelector('#empty');
+      dom(placeholder).removeChild(num);
+      dom(placeholder).removeChild(empty);
+      dom(placeholder).appendChild(num);
+      dom(placeholder).appendChild(empty);
     };
 
     var updateModel = function (element, model) {
@@ -621,7 +662,7 @@ suite('<i18n-number>', function () {
               done();
             }
           });
-          Polymer.dom(el).textContent = rawNumber1;
+          dom(el).textContent = rawNumber1;
         });
 
       });
@@ -692,7 +733,7 @@ suite('<i18n-number>', function () {
   });
 
 });
-    </script>
+</script>
 
   </body>
 </html>

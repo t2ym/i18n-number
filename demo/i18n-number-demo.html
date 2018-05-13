@@ -9,8 +9,8 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
 <link rel="import" href="../../paper-menu/paper-menu.html">
 <link rel="import" href="../../paper-item/paper-item.html">
 <link rel="import" href="../../paper-styles/demo-pages.html">
-<link rel="import" href="../i18n-number.html">
-<link rel="import" href="currency-list.html">
+<script type="module" src="../i18n-number.js"></script>
+<script type="module" src="./currency-list.js"></script>
 <dom-module id="i18n-number-demo">
   <template>
     <style>
@@ -211,178 +211,180 @@ Copyright (c) 2016, Tetsuya Mori <t2y3141592@gmail.com>. All rights reserved.
     </iron-collapse>
 
   </template>
-  <script>
-    var currencyList = document.createElement('currency-list');
-    Polymer({
-      is: 'i18n-number-demo',
-      properties: {
-        lang: {
-          type: String,
-          value: 'fr'
-        },
-        raw: {
-          type: String,
-          value: '123456.78'
-        },
-        offset: {
-          type: String,
-          value: ''
-        },
-        rawOptions: {
-          type: Object,
-          value: {
-            localeMatcher: '',
-            style: 'currency',
-            currency: 'USD',
-            currencyDisplay: 'name',
-            useGrouping: '',
-            minimumIntegerDigits: '',
-            minimumFractionDigits: '',
-            maximumFractionDigits: '',
-            minimumSignificantDigits: '',
-            maximumSignificantDigits: ''
-          }
-        },
-        options: {
-          type: Object
-        },
-        currencyList: {
-          type: Array,
-          value: currencyList.labelList
-        },
-        langList: {
-          type: Array,
-          value: [
-            { value: '', label: '' },
-            { value: 'en', label: 'en (English (US))' },
-            { value: 'en-GB', label: 'en-GB (English (UK))' },
-            { value: 'de', label: 'de (German)' },
-            { value: 'es', label: 'es (Spanish)' },
-            { value: 'fr', label: 'fr (French)' },
-            { value: 'ja', label: 'ja (Japanese)' },
-            { value: 'zh-Hans', label: 'zh-Hans (Simplified Chinese)' },
-            { value: 'zh-Hant', label: 'zh-Hant (Traditional Chinese)' },
-            { value: 'ru', label: 'ru (Russian)' }
-          ]
-        },
-        markdown: {
-          type: String,
-          notify: true,
-          value: '',
-          observer: '_markdownChanged'
-        }
-      },
-
-      observers: [
-        '_parameterChanged(raw,lang,offset)',
-        '_optionsChanged(rawOptions.*)',
-      ],
-
-      attached: function () {
-        this.fire('markdown-changed', { markdown: this.markdown });
-      },
-
-      _parameterChanged: function () {
-        this._update();
-      },
-
-      _optionsChanged: function () {
-        this._update();
-      },
-
-      _update: function () {
-        this.options = this._normalizeOptions(this.rawOptions);
-        this.markdown = this._getMarkDown();
-      },
-
-      _markdownChanged: function (markdown) {
-        this.fire('markdown-changed', { markdown: markdown });
-      },
-
-      _getMarkDown: function () {
-        var stringifiedOptions = JSON.stringify(this._normalizeOptions(this.rawOptions),null,4);
-        var markdown = '```\n\n' +
-          '<i18n-number \n' + 
-          (this.lang ? 
-          '  lang="' + this.lang + '"\n' : '' ) +
-          (stringifiedOptions === '{}' ? '' : (
-          '  options=\'' +
-          stringifiedOptions.replace('}', '  }') + '\'\n' ) ) + 
-          (this.offset !== '' ? ('  offset="' + this.offset + '"\n') : '') +
-          '>' + this.raw + '</i18n-number>\n' +
-          '\n```';
-        return markdown;
-      },
-
-      _normalizeOptions: function (rawOptions) {
-        var options = {};
-        if (!rawOptions) {
-          return options;
-        }
-        if (rawOptions.localeMatcher) {
-          options.localeMatcher = rawOptions.localeMatcher;
-        }
-        if (rawOptions.style) {
-          options.style = rawOptions.style;
-        }
-        if (options.style === 'currency') {
-          options.currency = rawOptions.currency;
-          if (rawOptions.currencyDisplay !== '') {
-            options.currencyDisplay = rawOptions.currencyDisplay;
-          }
-        }
-        switch (rawOptions.useGrouping) {
-        case '':
-        default:
-          break;
-        case 'true':
-          options.useGrouping = true;
-          break;
-        case 'false':
-          options.useGrouping = false;
-          break;
-        }
-        if (!this.$.minimumIntegerDigits.invalid &&
-            rawOptions.minimumIntegerDigits) {
-          options.minimumIntegerDigits = new Number(rawOptions.minimumIntegerDigits);
-        }
-        if (!this.$.minimumFractionDigits.invalid &&
-            rawOptions.minimumFractionDigits) {
-          options.minimumFractionDigits = new Number(rawOptions.minimumFractionDigits);
-        }
-        if (!this.$.maximumFractionDigits.invalid &&
-            rawOptions.maximumFractionDigits) {
-          options.maximumFractionDigits = new Number(rawOptions.maximumFractionDigits);
-        }
-        if (!this.$.minimumSignificantDigits.invalid &&
-            rawOptions.minimumSignificantDigits) {
-          options.minimumSignificantDigits = new Number(rawOptions.minimumSignificantDigits);
-        }
-        if (!this.$.maximumSignificantDigits.invalid &&
-            rawOptions.maximumSignificantDigits) {
-          options.maximumSignificantDigits = new Number(rawOptions.maximumSignificantDigits);
-        }
-
-        return options;
-      },
-
-      _currencyOptionsDisabled: function (style) {
-        return style !== 'currency';
-      },
-
-      _compareCurrency: function (a, b) {
-        var la = a ? a.label : '';
-        var lb = b ? b.label : '';
-        return la.localeCompare(lb);
-      },
-
-      _toggleParameters: function () {
-        this.$.parameters.opened = !this.$.parameters.opened;
-      },
-
-      _iconName: function (opened) {
-        return opened ? 'arrow-drop-up' : 'arrow-drop-down';
+  <script type="module">
+import '../i18n-number.js';
+import './currency-list.js';
+var currencyList = document.createElement('currency-list');
+Polymer({
+  is: 'i18n-number-demo',
+  properties: {
+    lang: {
+      type: String,
+      value: 'fr'
+    },
+    raw: {
+      type: String,
+      value: '123456.78'
+    },
+    offset: {
+      type: String,
+      value: ''
+    },
+    rawOptions: {
+      type: Object,
+      value: {
+        localeMatcher: '',
+        style: 'currency',
+        currency: 'USD',
+        currencyDisplay: 'name',
+        useGrouping: '',
+        minimumIntegerDigits: '',
+        minimumFractionDigits: '',
+        maximumFractionDigits: '',
+        minimumSignificantDigits: '',
+        maximumSignificantDigits: ''
       }
-    });
-  </script>
+    },
+    options: {
+      type: Object
+    },
+    currencyList: {
+      type: Array,
+      value: currencyList.labelList
+    },
+    langList: {
+      type: Array,
+      value: [
+        { value: '', label: '' },
+        { value: 'en', label: 'en (English (US))' },
+        { value: 'en-GB', label: 'en-GB (English (UK))' },
+        { value: 'de', label: 'de (German)' },
+        { value: 'es', label: 'es (Spanish)' },
+        { value: 'fr', label: 'fr (French)' },
+        { value: 'ja', label: 'ja (Japanese)' },
+        { value: 'zh-Hans', label: 'zh-Hans (Simplified Chinese)' },
+        { value: 'zh-Hant', label: 'zh-Hant (Traditional Chinese)' },
+        { value: 'ru', label: 'ru (Russian)' }
+      ]
+    },
+    markdown: {
+      type: String,
+      notify: true,
+      value: '',
+      observer: '_markdownChanged'
+    }
+  },
+
+  observers: [
+    '_parameterChanged(raw,lang,offset)',
+    '_optionsChanged(rawOptions.*)',
+  ],
+
+  attached: function () {
+    this.fire('markdown-changed', { markdown: this.markdown });
+  },
+
+  _parameterChanged: function () {
+    this._update();
+  },
+
+  _optionsChanged: function () {
+    this._update();
+  },
+
+  _update: function () {
+    this.options = this._normalizeOptions(this.rawOptions);
+    this.markdown = this._getMarkDown();
+  },
+
+  _markdownChanged: function (markdown) {
+    this.fire('markdown-changed', { markdown: markdown });
+  },
+
+  _getMarkDown: function () {
+    var stringifiedOptions = JSON.stringify(this._normalizeOptions(this.rawOptions),null,4);
+    var markdown = '```\n\n' +
+      '<i18n-number \n' + 
+      (this.lang ? 
+      '  lang="' + this.lang + '"\n' : '' ) +
+      (stringifiedOptions === '{}' ? '' : (
+      '  options=\'' +
+      stringifiedOptions.replace('}', '  }') + '\'\n' ) ) + 
+      (this.offset !== '' ? ('  offset="' + this.offset + '"\n') : '') +
+      '>' + this.raw + '</i18n-number>\n' +
+      '\n```';
+    return markdown;
+  },
+
+  _normalizeOptions: function (rawOptions) {
+    var options = {};
+    if (!rawOptions) {
+      return options;
+    }
+    if (rawOptions.localeMatcher) {
+      options.localeMatcher = rawOptions.localeMatcher;
+    }
+    if (rawOptions.style) {
+      options.style = rawOptions.style;
+    }
+    if (options.style === 'currency') {
+      options.currency = rawOptions.currency;
+      if (rawOptions.currencyDisplay !== '') {
+        options.currencyDisplay = rawOptions.currencyDisplay;
+      }
+    }
+    switch (rawOptions.useGrouping) {
+    case '':
+    default:
+      break;
+    case 'true':
+      options.useGrouping = true;
+      break;
+    case 'false':
+      options.useGrouping = false;
+      break;
+    }
+    if (!this.$.minimumIntegerDigits.invalid &&
+        rawOptions.minimumIntegerDigits) {
+      options.minimumIntegerDigits = new Number(rawOptions.minimumIntegerDigits);
+    }
+    if (!this.$.minimumFractionDigits.invalid &&
+        rawOptions.minimumFractionDigits) {
+      options.minimumFractionDigits = new Number(rawOptions.minimumFractionDigits);
+    }
+    if (!this.$.maximumFractionDigits.invalid &&
+        rawOptions.maximumFractionDigits) {
+      options.maximumFractionDigits = new Number(rawOptions.maximumFractionDigits);
+    }
+    if (!this.$.minimumSignificantDigits.invalid &&
+        rawOptions.minimumSignificantDigits) {
+      options.minimumSignificantDigits = new Number(rawOptions.minimumSignificantDigits);
+    }
+    if (!this.$.maximumSignificantDigits.invalid &&
+        rawOptions.maximumSignificantDigits) {
+      options.maximumSignificantDigits = new Number(rawOptions.maximumSignificantDigits);
+    }
+
+    return options;
+  },
+
+  _currencyOptionsDisabled: function (style) {
+    return style !== 'currency';
+  },
+
+  _compareCurrency: function (a, b) {
+    var la = a ? a.label : '';
+    var lb = b ? b.label : '';
+    return la.localeCompare(lb);
+  },
+
+  _toggleParameters: function () {
+    this.$.parameters.opened = !this.$.parameters.opened;
+  },
+
+  _iconName: function (opened) {
+    return opened ? 'arrow-drop-up' : 'arrow-drop-down';
+  }
+});
+</script>
 </dom-module>

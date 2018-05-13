@@ -1,14 +1,11 @@
-<!-- 
+/* 
 ISO 4217 Currency List based on http://www.currency-iso.org/dam/downloads/lists/list_one.xml
--->
-<link rel="import" href="../../polymer/polymer.html">
-
-<dom-module id="currency-list">
-<template>
-</template>
-<script>
-(function () {
-
+*/
+/*
+  FIXME(polymer-modulizer): the above comments were extracted
+  from HTML and may be out of place here. Review them and
+  then delete this comment!
+*/
 var currencyList = 
     {
         "ISO_4217": {
@@ -1956,43 +1953,45 @@ var currencyList =
         }
     };
 
-    Polymer({
-        is: 'currency-list',
+Polymer({
+  importMeta: import.meta,
 
-        properties: {
-            raw: {
-                type: Object,
-                value: currencyList
-            },
-            labelList: {
-                type: Array,
-                computed: '_generateLabelList(raw)'
-            }
-        },
+  _template: Polymer.html`
 
-        created: function () {
-            console.log(this.is + ' created');
-        },
+`,
 
-        _generateLabelList: function (raw) {
-            var list = [];
-            var rawList = raw.ISO_4217.CcyTbl.CcyNtry;
-            var rawMap = {};
-            for (var entry in rawList) {
-                var item = rawList[entry];
-                if (rawMap[item.Ccy]) {
-                    continue;
-                }
-                list.push({ 
-                    value: item.Ccy, 
-                    label: item.Ccy + ' (' + item.CcyNm + ')'
-                });
-                rawMap[item.Ccy] = true;
-            }
-            return list;
-        }
-    });
-})();
-</script>
-</dom-module>
+  is: 'currency-list',
 
+  properties: {
+      raw: {
+          type: Object,
+          value: currencyList
+      },
+      labelList: {
+          type: Array,
+          computed: '_generateLabelList(raw)'
+      }
+  },
+
+  created: function () {
+      console.log(this.is + ' created');
+  },
+
+  _generateLabelList: function (raw) {
+      var list = [];
+      var rawList = raw.ISO_4217.CcyTbl.CcyNtry;
+      var rawMap = {};
+      for (var entry in rawList) {
+          var item = rawList[entry];
+          if (rawMap[item.Ccy]) {
+              continue;
+          }
+          list.push({ 
+              value: item.Ccy, 
+              label: item.Ccy + ' (' + item.CcyNm + ')'
+          });
+          rawMap[item.Ccy] = true;
+      }
+      return list;
+  }
+});
