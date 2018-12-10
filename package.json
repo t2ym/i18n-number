@@ -15,7 +15,7 @@
   },
   "homepage": "https://github.com/t2ym/i18n-number#readme",
   "name": "i18n-number",
-  "version": "3.0.0-pre.2",
+  "version": "3.0.0-pre.3",
   "main": "i18n-number.js",
   "directories": {
     "test": "test"
@@ -30,24 +30,23 @@
     "url": "https://github.com/t2ym/i18n-number/issues"
   },
   "devDependencies": {
-    "@polymer/iron-collapse": "^3.0.0-pre.19",
-    "@polymer/iron-component-page": "^3.0.0-pre.19",
-    "@polymer/iron-demo-helpers": "^3.0.0-pre.19",
-    "@polymer/iron-flex-layout": "^3.0.0-pre.19",
-    "@polymer/iron-selector": "^3.0.0-pre.19",
-    "@polymer/marked-element": "^3.0.0-pre.19",
-    "@polymer/paper-button": "^3.0.0-pre.19",
-    "@polymer/paper-dropdown-menu": "^3.0.0-pre.19",
-    "@polymer/paper-icon-button": "^3.0.0-pre.19",
-    "@polymer/paper-input": "^3.0.0-pre.19",
-    "@polymer/paper-item": "^3.0.0-pre.19",
+    "@polymer/iron-collapse": "^3.0.0",
+    "@polymer/iron-component-page": "^4.0.0",
+    "@polymer/iron-demo-helpers": "^3.0.0",
+    "@polymer/iron-flex-layout": "^3.0.0",
+    "@polymer/iron-selector": "^3.0.0",
+    "@polymer/marked-element": "^3.0.0",
+    "@polymer/paper-button": "^3.0.0",
+    "@polymer/paper-dropdown-menu": "^3.0.0",
+    "@polymer/paper-icon-button": "^3.0.0",
+    "@polymer/paper-input": "^3.0.0",
+    "@polymer/paper-item": "^3.0.0",
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "coveralls": "^2.11.8",
     "lcov-result-merger": "^1.2.0",
     "wct-browser-legacy": "^1.0.0",
-    "wct-headless": "^2.2.2",
-    "wct-istanbul": "^0.14.2",
-    "web-component-tester": "^6.6.0"
+    "wct-istanbul": "^0.14.3",
+    "web-component-tester": "^6.9.0"
   },
   "resolutions": {
     "inherits": "2.0.3",
