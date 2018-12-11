@@ -7,7 +7,7 @@
 
 Wrapper element for [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat).
 
-[Demo](https://npm-demos.appspot.com/i18n-number@3.0.0-pre.5/demo/index.html) and [API Docs](https://www.webcomponents.org/element/t2ym/i18n-number/elements/i18n-number)
+[Demo](https://t2ym.github.io/i18n-number/components/i18n-number/demo/) and [API Docs](https://www.webcomponents.org/element/t2ym/i18n-number/elements/i18n-number)
 
 <img src="https://raw.githubusercontent.com/wiki/t2ym/i18n-number/i18n-number-demo.gif" width="600px">
 
