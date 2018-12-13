@@ -38,6 +38,46 @@ This renders as follows:
     $123,456.78
 ```
 
+### Demo
+
+#### Prerequisite for Building and Serving Demo
+
+```sh
+    npm install -g polymer-cli
+```
+
+#### On-the-fly Build
+
+```sh
+    # Serve at http://localhost:8080/components/i18n-number/demo/
+    polymer serve --npm --module-resolution=node -p 8080
+```
+
+#### Static Builds
+
+- Build
+
+```sh
+    polymer build
+```
+
+- Targets
+
+| target | browser | minify | bundled |
+|:-----:|:-------:|:------:|:-------:|
+|build/esm-unbundled|es6,modules|no|no|
+|build/esm-bundled  |es6,modules|yes|yes|
+|build/es6-bundled  |es6        |yes|yes|
+|build/es5-bundled  |es5        |yes|yes|
+
+- Serve
+
+```sh
+    # Serve at http://localhost:8080/
+    cd build/{esm-unbundled|esm-bundled|es6-bundled|es5-bundled}
+    python -m SimpleHTTPServer 8080 # or any HTTP(S) server
+```
+
 ### License
 
 [BSD-2-Clause](https://github.com/t2ym/i18n-number/blob/master/LICENSE.md)
