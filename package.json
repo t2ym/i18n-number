@@ -15,7 +15,7 @@
   },
   "homepage": "https://github.com/t2ym/i18n-number#readme",
   "name": "i18n-number",
-  "version": "3.0.0-pre.7",
+  "version": "3.0.0-pre.8",
   "main": "i18n-number.js",
   "directories": {
     "test": "test"
