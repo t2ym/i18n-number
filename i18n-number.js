@@ -463,7 +463,15 @@ Polymer({
    * Set up observers of textContent mutations
    */
   _setupObservers: function () {
-    this.textNode = dom(this).childNodes[0];
+    let i = 0;
+    do {
+      this.textNode = dom(this).childNodes[i++];
+      if (!this.textNode) {
+        this.textNode = dom(this).childNodes[0];
+        break;
+      }
+    }
+    while (this.textNode.nodeType !== this.textNode.TEXT_NODE);
     if (!this.textNode) {
       dom(this).appendChild(document.createTextNode(''));
       this.textNode = dom(this).childNodes[0];
@@ -472,13 +480,19 @@ Polymer({
     this.observer.observe(this.textNode, { characterData: true });
     this.observer.observe(this, { attributes: true, attributeFilter: [ 'lang' ] });
     this.nodeObserver = dom(this).observeNodes(function (info) {
-      if (info.addedNodes[0] && 
-          info.addedNodes[0].nodeType === info.addedNodes[0].TEXT_NODE) {
-        this.textNode = info.addedNodes[0];
-        this.raw = this.textNode.data;
-        //console.log('i18n-number: text node added with ' + this.raw);
-        this.observer.observe(this.textNode, { characterData: true });
+      let i = 0;
+      do {
+        if (info.addedNodes[i] &&
+            info.addedNodes[i].nodeType === info.addedNodes[i].TEXT_NODE) {
+          this.textNode = info.addedNodes[i];
+          this.raw = this.textNode.data;
+          //console.log('i18n-number: text node added with ' + this.raw);
+          this.observer.observe(this.textNode, { characterData: true });
+          break;
+        }
+        i++;
       }
+      while (i < info.addedNodes.length);
     }.bind(this));
   },
 
