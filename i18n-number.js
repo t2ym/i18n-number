@@ -22,26 +22,10 @@ This example renders the following number string.
 @hero hero.svg
 @demo demo/index.html
 */
-/*
-  FIXME(polymer-modulizer): the above comments were extracted
-  from HTML and may be out of place here. Review them and
-  then delete this comment!
-*/
-import { Polymer } from '@polymer/polymer/polymer-legacy.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
+import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 
-const $_documentContainer = document.createElement('template');
-
-$_documentContainer.setAttribute('style', 'display: none;');
-
-$_documentContainer.innerHTML = `<dom-module id="i18n-number">
-  <template strip-whitespace="">
-    <span id="number"></span>
-  </template>
-  
-</dom-module>`;
-
-document.head.appendChild($_documentContainer.content);
 var intlLibraryScript;
 var intlLibraryLoadingStatus = 'initializing';
 var _setupIntlPolyfillCalled = false;
@@ -343,6 +327,7 @@ function _enumerateFallbackLanguages (lang) {
 Polymer({
   importMeta: import.meta,
   is: 'i18n-number',
+  _template: (t => { t.setAttribute('strip-whitespace', ''); return t; })(html`<span id="number"></span>`),
 
   /**
    * Fired whenever the formatted text is rendered.
