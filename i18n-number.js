@@ -35,7 +35,7 @@ var _setupIntlPolyfillCalled = false;
  */
 function _setupIntlPolyfill () {
   // Polyfill Intl if required
-  var intlLibraryUrl = this.resolveUrl('../intl/dist/Intl.min.js');
+  var intlLibraryUrl = this.resolveUrl('../intl/dist/Intl.min.js', this.importMeta.url);
   if (window.Intl) {
     if (window.IntlPolyfill && window.Intl === window.IntlPolyfill) {
       intlLibraryLoadingStatus = 'loaded';
@@ -106,7 +106,7 @@ function _setupIntlPolyfillLocale (locale, callback) {
         if (!script) {
           script = document.createElement('script');
           script.setAttribute('id', 'intl-js-locale-' + locale);
-          script.setAttribute('src', this.resolveUrl('../intl/locale-data/jsonp/' + locale + '.js'));
+          script.setAttribute('src', this.resolveUrl('../intl/locale-data/jsonp/' + locale + '.js', this.importMeta.url));
           var intlLocaleLoadedBindThis = function (e) {
             if (e.target === script) {
               e.target.removeEventListener('load', intlLocaleLoadedBindThis);
@@ -418,20 +418,13 @@ Polymer({
    * Start loading Intl polyfill only once
    */
   registered: function () {
-    if (!_setupIntlPolyfillCalled &&
-        // Fix #6: Safari 9 with 2.0-preview cannot properly resolve self URL at registered callback
-        this.resolveUrl('.').match(/\/i18n-number\//) &&
-        !this.resolveUrl('..').match(/\/i18n-number\//)) {
+    if (!_setupIntlPolyfillCalled) {
       _setupIntlPolyfillCalled = true;
       _setupIntlPolyfill.call(this);
     }
   },
 
   ready: function () {
-    if (!_setupIntlPolyfillCalled) { // Fix #6: For Safari 9
-      _setupIntlPolyfillCalled = true;
-      _setupIntlPolyfill.call(this);
-    }
     this._setupObservers();
     this.raw = this.textNode.data;
     if (!this.lang) {
