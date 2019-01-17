@@ -29,6 +29,7 @@ import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 var intlLibraryScript;
 var intlLibraryLoadingStatus = 'initializing';
 var _setupIntlPolyfillCalled = false;
+var formatCache = new Map();
 
 /**
  * Set up Intl polyfill if required
@@ -566,6 +567,23 @@ Polymer({
   },
 
   /**
+   * Get a cached Intl.NumberFormat object
+   *
+   * @param {string} lang Locale for formatting.
+   * @param {Object} options Options for Intl.NumberFormat.
+   * @return {Object} Intl.NumberFormat object.
+   */
+  _getNumberFormatObject(lang, options) {
+    let formatId = lang + JSON.stringify(options);
+    let formatObject = formatCache.get(formatId);
+    if (!formatObject) {
+      formatObject = new Intl.NumberFormat(lang, options);
+      formatCache.set(formatId, formatObject);
+    }
+    return formatObject;
+  },
+
+  /**
    * Formats the number
    *
    * @param {string} lang Locale for formatting.
@@ -586,7 +604,7 @@ Polymer({
           this.effectiveLang = locale;
           this._render.call(this, locale, this.options, this.raw, this.offset);
         }.bind(this))) {
-          return new Intl.NumberFormat(lang, options).format(number);
+          return this._getNumberFormatObject(lang, options).format(number);
         }
         else {
           // waiting for callback
@@ -601,7 +619,7 @@ Polymer({
     case 'native':
       // native
       try {
-        return new Intl.NumberFormat(lang, options).format(number);
+        return this._getNumberFormatObject(lang, options).format(number);
       }
       catch (e) {
         return number.toString();
