@@ -1,7 +1,7 @@
 {
   "description": "Wrapper element for Intl.NumberFormat",
   "keywords": [
-    "polymer",
+    "lit-html",
     "web-component",
     "web-components",
     "i18n",
