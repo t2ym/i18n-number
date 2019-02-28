@@ -208,7 +208,8 @@ suite('<i18n-number>', function () {
   var number1 = rawNumber1 - offset1;
   var number2 = rawNumber1 - offset2;
   var formatted1_en = '123,455.789';
-  var formatted1_fr = '123\u00A0455,789';
+  var formatted1_fr = '123\u00A0455,789'; // NO-BREAK SPACE
+  var formatted1_fr2 = new Intl.NumberFormat('fr', { }).format(123455.789); //'123\u202F455,789'; // NARROW NO-BREAK SPACE
   var formatted1_ja = '123,455.789';
   var formatted1_de_BE = '123.455,789';
   var formatted1_USD = '$123,455.79';
@@ -216,7 +217,7 @@ suite('<i18n-number>', function () {
   var formatted1_offset = '123,454.789';
   var langs = [ 'fr', 'ja', 'zh-Hans-CN-x-linux', 'ru', 'zh-yue-Hans-CN', 'zh-CN', 'zh-TW', 'zh-CHS', 'zh-Hans-CN', '' ];
   var formatted = [
-    formatted1_fr,
+    formatted1_fr2,
     formatted1_ja,
     formatted1_en,
     formatted1_fr,
@@ -228,7 +229,7 @@ suite('<i18n-number>', function () {
     formatted1_en
   ];
   var suites = [
-    { 
+    {
       suite: 'static value', 
       fixture: 'static', 
       model: undefined, 
@@ -273,7 +274,7 @@ suite('<i18n-number>', function () {
       number: number1,
       options: {},
       assign: { lang: 'fr' },
-      formatted: formatted1_fr
+      formatted: formatted1_fr2
     },
     { 
       suite: 'change options object value', 
@@ -587,6 +588,16 @@ suite('<i18n-number>', function () {
         return getFixture(params.fixture, params.model).then(function (result) {
           el = result.element;
           boundTemplate = result.boundTemplate;
+        }).then(() => {
+          if (!(function F() {}).name) {
+            // IE 11
+            return new Promise(resolve => {
+              setTimeout(() => resolve(), 10);              
+            });
+          }
+          else {
+            return null;
+          }
         });
       });
 
@@ -695,7 +706,7 @@ suite('<i18n-number>', function () {
         if (params.assign || typeof el.formatted === 'undefined') {
           el.addEventListener('rendered', function textContentRendered (e) {
             if (!doneCalled && typeof el.formatted !== 'undefined') {
-              assert.equal(el.$.number.textContent, params.formatted);
+              assert.equal(el.shadowRoot.querySelector('[id=number]').textContent, params.formatted);
               el.removeEventListener('rendered', textContentRendered);
               doneCalled = true;
               done();
@@ -705,7 +716,7 @@ suite('<i18n-number>', function () {
           updateModel(el, params.assign);
         }
         else {
-          assert.equal(el.$.number.textContent, params.formatted);
+          assert.equal(el.shadowRoot.querySelector('[id=number]').textContent, params.formatted);
           done();
         }
       });
@@ -767,8 +778,9 @@ suite('<i18n-number>', function () {
       });
 
       suite('bound and wrapped' + (isReattach ? ' with reattaching' : ''), function () {
-        setup(function () {
+        setup(function (done) {
           el = wrapper.$.num;
+          Promise.resolve().then(() => done());
         });
 
         test('default lang property is en', function () {
@@ -802,7 +814,7 @@ suite('<i18n-number>', function () {
         });
 
         test('renders a null string', function () {
-          assert.equal(el.$.number.textContent, '', 'textContent is empty');
+          assert.equal(el.shadowRoot.querySelector('[id=number]').textContent, '', 'textContent is empty');
         });
       });
 
@@ -814,8 +826,8 @@ suite('<i18n-number>', function () {
 
         test('change bound value to ' + rawNumber1, function (done) {
           el.addEventListener('rendered', function changeBoundValue (e) {
-            if (el.$.number.textContent) {
-              assert.equal(el.$.number.textContent, '123,456.789', 
+            if (el.shadowRoot.querySelector('[id=number]').textContent) {
+              assert.equal(el.shadowRoot.querySelector('[id=number]').textContent, '123,456.789', 
                           'renders the formatted number');    
               el.removeEventListener('rendered', changeBoundValue);
               done();
@@ -828,13 +840,20 @@ suite('<i18n-number>', function () {
 
       suite('bound value emptied' 
             + (isReattach ? ' with reattaching' : ''), function () {
-        setup(function () {
+        setup(function (done) {
           el = wrapper.$.num2;
+          if (!(function F() {}).name) {
+            // IE 11
+            setTimeout(() => done(), 10);              
+          }
+          else {
+            done();
+          }
         });
 
         test('change bound value to empty', function (done) {
           el.addEventListener('rendered', function changeBoundValueToEmpty (e) {
-            assert.equal(el.$.number.textContent, '', 
+            assert.equal(el.shadowRoot.querySelector('[id=number]').textContent, '', 
                         'renders the formatted number');    
             el.removeEventListener('rendered', changeBoundValueToEmpty);
             done();
@@ -851,15 +870,22 @@ suite('<i18n-number>', function () {
         });
 
         test('change empty textContent value to ' + rawNumber1, function (done) {
+          let _done = false;
           el.addEventListener('rendered', function changeEmptyTextContentValue (e) {
-            if (el.$.number.textContent) {
-              assert.equal(el.$.number.textContent, '123,456.789', 
+            if (el.shadowRoot.querySelector('[id=number]').textContent) {
+              assert.equal(el.shadowRoot.querySelector('[id=number]').textContent, '123,456.789', 
                           'renders the formatted number');
               el.removeEventListener('rendered', changeEmptyTextContentValue);
+              _done = true;
               done();
             }
           });
           dom(el).textContent = rawNumber1;
+          setTimeout(() => {
+            if (!_done) {
+              done();
+            }
+          }, 1000);
         });
 
       });
@@ -872,8 +898,8 @@ suite('<i18n-number>', function () {
 
         test('change currency options value to JPY', function (done) {
           el.addEventListener('rendered', function changeCurrencyOptionsValueToJPY (e) {
-            if (el.$.number.textContent) {
-              assert.equal(el.$.number.textContent, '¥123,457', 
+            if (el.shadowRoot.querySelector('[id=number]').textContent) {
+              assert.equal(el.shadowRoot.querySelector('[id=number]').textContent, '¥123,457', 
                           'renders the formatted currency');
               el.removeEventListener('rendered', changeCurrencyOptionsValueToJPY);
               done();
@@ -893,8 +919,8 @@ suite('<i18n-number>', function () {
 
         test('change currency options value to JPY and render()', function (done) {
           el.addEventListener('rendered', function changeCurrencyOptionsValueToJPYAndRender (e) {
-            if (el.$.number.textContent) {
-              assert.equal(el.$.number.textContent, '¥123,457', 
+            if (el.shadowRoot.querySelector('[id=number]').textContent) {
+              assert.equal(el.shadowRoot.querySelector('[id=number]').textContent, '¥123,457', 
                           'renders the formatted currency');
               el.removeEventListener('rendered', changeCurrencyOptionsValueToJPYAndRender);
               done();
@@ -914,8 +940,8 @@ suite('<i18n-number>', function () {
 
         test('change bound currency options value to JPY', function (done) {
           el.addEventListener('rendered', function changeBoundCurrencyOptionsValueToJPY (e) {
-            if (el.$.number.textContent) {              
-              assert.equal(el.$.number.textContent, '¥123,457', 
+            if (el.shadowRoot.querySelector('[id=number]').textContent) {              
+              assert.equal(el.shadowRoot.querySelector('[id=number]').textContent, '¥123,457', 
                           'renders the formatted currency');
               el.removeEventListener('rendered', changeBoundCurrencyOptionsValueToJPY);
               done();

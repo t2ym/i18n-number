@@ -40,5 +40,13 @@ Polymer({
       },
       notify: true
     }
+  },
+
+  attached: function() {
+    this.$.num.setAttribute('lang', this.$.num.getAttribute('lang'));
+    this.$.num.setAttribute('lang', this.$.num.getAttribute('lang'));
+    this.$.num.setAttribute('attr', 'value');
+    this.$.num.setAttribute('options', '<');
+    this.$.num.constructor.importMeta;
   }
 });

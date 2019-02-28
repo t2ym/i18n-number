@@ -45,6 +45,7 @@
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "coveralls": "^2.11.8",
     "lcov-result-merger": "^1.2.0",
+    "@polymer/polymer": "^3.0.0",
     "wct-browser-legacy": "^1.0.0",
     "wct-istanbul": "^0.14.3",
     "web-component-tester": "^6.9.0"
@@ -57,7 +58,6 @@
     "@webcomponents/webcomponentsjs": "^2.0.0"
   },
   "dependencies": {
-    "@polymer/polymer": "^3.0.0",
-    "intl": "^1.2.0"
+    "lit-html": "^1.0.0"
   }
 }

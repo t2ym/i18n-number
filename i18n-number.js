@@ -17,318 +17,140 @@ This example renders the following number string.
 
     $123,455.78
 
-@group I18nBehavior
 @element i18n-number
 @hero hero.svg
 @demo demo/index.html
 */
-import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
-import { html } from '@polymer/polymer/lib/utils/html-tag.js';
+import { html, render } from 'lit-html/lit-html.js';
 
-var intlLibraryScript;
-var intlLibraryLoadingStatus = 'initializing';
-var _setupIntlPolyfillCalled = false;
-var formatCache = new Map();
+// TODO: Create a polyfill module as a separate npm package to be shared among i18n-number, i18n-format, i18n-element
+const isAttributeChangedPolyfillRequired = (function () {
+  class DummyCustomElementToCheckAttributeChangedCallbackCapability extends HTMLElement {
+    static get observedAttributes() { return ['lang']; }
+    attributeChangedCallback(name, oldValue, newValue) { this.attributeChangedCallbackCalled = true; }
+  }
+  customElements.define('i18n-number-dummy-custom-element-to-check-attribute-changed-callback-capability', DummyCustomElementToCheckAttributeChangedCallbackCapability);
+  const dummyElement = document.createElement('i18n-number-dummy-custom-element-to-check-attribute-changed-callback-capability');
+  dummyElement.lang = 'en'; // set lang "property" not "attribute"
+  return !dummyElement.attributeChangedCallbackCalled;
+})();
 
 /**
- * Set up Intl polyfill if required
- */
-function _setupIntlPolyfill () {
-  // Polyfill Intl if required
-  var intlLibraryUrl = this.resolveUrl('../intl/dist/Intl.min.js', this.importMeta.url);
-  if (window.Intl) {
-    if (window.IntlPolyfill && window.Intl === window.IntlPolyfill) {
-      intlLibraryLoadingStatus = 'loaded';
-    }
-    else {
-      intlLibraryLoadingStatus = 'native';
-    }
-  }
-  else {
-    intlLibraryLoadingStatus = 'loading';
-    intlLibraryScript = document.createElement('script');
-    intlLibraryScript.setAttribute('src', intlLibraryUrl);
-    intlLibraryScript.setAttribute('id', 'intl-js-library');
-    intlLibraryScript.addEventListener('load', function intlLibraryLoaded (e) {
-      intlLibraryLoadingStatus = 'loaded';
-      e.target.removeEventListener('load', intlLibraryLoaded);
-      return false;
-    });
-    var s = document.querySelector('script') || document.body;
-    s.parentNode.insertBefore(intlLibraryScript, s);
-  }
-}
-
-/**
- * Set up polyfill locale of Intl if required
+ * Polyfill mixin for attributeChangedCallback with custom elements v1 polyfill
  *
- * @param {String} locale Target locale to polyfill
- * @param {Function} callback Callback function to handle locale load
- * @return {Boolean} true if supported; false if callback will be called
+ * @mixinFunction
+ * @param {HTMLElement} base Base class
+ * @summary Polyfill mixin for attributeChangedCallback with custom elements v1 polyfill
  */
-function _setupIntlPolyfillLocale (locale, callback) {
-  if (!window.IntlPolyfill) {
-    switch (intlLibraryLoadingStatus) {
-    case 'loading':
-      /* istanbul ignore else: intlLibraryScript is always set when the status is 'loading' */
-      if (intlLibraryScript) {
-        var libraryLoadedBindThis = function (e) {
-          _setupIntlPolyfillLocale.call(this, locale, callback);
-          e.target.removeEventListener('load', libraryLoadedBindThis);
-        }.bind(this);
-        intlLibraryScript.addEventListener('load', libraryLoadedBindThis);
-        return false;
+const polyfill = (base) => !isAttributeChangedPolyfillRequired ? base :
+class PolyfilledElement extends base {
+
+  /**
+   * constructor
+   */
+  constructor() {
+    super();
+    this._polyfillAttributeChangedCallback();
+  }
+
+  /**
+   * Setup polyfill for attributeChangedCallback() of custom elements v1 for unsupported browsers
+   */
+  _polyfillAttributeChangedCallback() {
+    this._selfObserver = this._selfObserver || 
+      new MutationObserver(this._handleSelfAttributeChange.bind(this));
+    this._selfObserver.observe(this, { attributes: true, attributeOldValue: true, attributeFilter: this.constructor.observedAttributes });
+  }
+
+  /**
+   * Polyfills setAttribute by marking itself executing a setAttribute call
+   */
+  setAttribute(name, value) {
+    if (!this._observedAttributes) {
+      let observedAttributes = this.constructor.observedAttributes;
+      this.__proto__._observedAttributes = new Set();
+      for (let attr of observedAttributes) {
+        this._observedAttributes.add(attr);
+      }
+    }
+    if (this._observedAttributes.has(name)) {
+      this._lastSetAttributeCall = this._lastSetAttributeCall || Object.create(null);
+      this._inSetAttributeCall = true;
+      if (Object.prototype.hasOwnProperty.call(this._lastSetAttributeCall, name)) {
+        delete this._lastSetAttributeCall[name];
+      }
+      super.setAttribute(name, value);
+      this._inSetAttributeCall = false;
+      if (Object.prototype.hasOwnProperty.call(this._lastSetAttributeCall, name)) {
+        delete this._lastSetAttributeCall[name];
       }
       else {
-        console.error('Intl.js is not being loaded');
+        this._lastSetAttributeCall[name] = value;
       }
-      /* istanbul ignore next: intlLibraryScript is always set when the status is 'loading' */
-      break;
-    // impossible cases
-    case 'initializing':
-    case 'loaded':
-    case 'native':
-    default:
-      /* istanbul ignore next: these cases are impossible */
-      break;
+    }
+    else {
+      super.setAttribute(name, value);
     }
   }
-  else {
-    if (intlLibraryLoadingStatus !== 'native') {
-      var supported = Intl.NumberFormat.supportedLocalesOf(locale, { localeMatcher: 'lookup' });
-      var script;
-      var intlScript;
-      if (supported.length === 0) {
-        // load the locale
-        var fallbackLanguages = _enumerateFallbackLanguages(locale);
-        locale = fallbackLanguages.shift();
-        script = document.querySelector('script#intl-js-locale-' + locale);
-        if (!script) {
-          script = document.createElement('script');
-          script.setAttribute('id', 'intl-js-locale-' + locale);
-          script.setAttribute('src', this.resolveUrl('../intl/locale-data/jsonp/' + locale + '.js', this.importMeta.url));
-          var intlLocaleLoadedBindThis = function (e) {
-            if (e.target === script) {
-              e.target.removeEventListener('load', intlLocaleLoadedBindThis);
-              callback.call(this, locale);
-            }
-            return false;
-          }.bind(this);
-          var intlLocaleLoadErrorBindThis = function (e) {
-            if (e.target === script) {
-              e.target.removeEventListener('error', intlLocaleLoadErrorBindThis);
-              script.setAttribute('loaderror','');
-              locale = fallbackLanguages.shift();
-              if (!locale) {
-                locale = this.DEFAULT_LANG;
-              }
-              var fallbackSupport = Intl.NumberFormat.supportedLocalesOf(locale, { localeMatcher: 'lookup'});
-              if (fallbackSupport.length > 0) {
-                callback.call(this, locale);
-              }
-              else {
-                _setupIntlPolyfillLocale.call(this, locale, callback);
-              }
-              return false;
-            }
-          }.bind(this);
-          script.addEventListener('load', intlLocaleLoadedBindThis);
-          script.addEventListener('error', intlLocaleLoadErrorBindThis);
-          intlScript = document.querySelector('script#intl-js-library') || document.body;
-          intlScript.parentNode.insertBefore(script, intlScript.nextSibling);
+
+  /**
+   * Polyfills calls to attributeChangedCallback()
+   * @param {Array} mutations Array of mutations of observedAttributes
+   */
+  _handleSelfAttributeChange(mutations) {
+    mutations.forEach(function(mutation) {
+      switch (mutation.type) {
+      case 'attributes':
+        let name = mutation.attributeName;
+        let oldValue = mutation.oldValue;
+        let newValue = this.getAttribute(name);
+        /*
+        console.log(`${this.is}._handleSelfAttributeChange mutation { "${name}", ` +
+          `"${oldValue}"(${typeof oldValue}), "${newValue}"(${typeof newValue}) } ` +
+          `_inSetAttributeCall=${this._inSetAttributeCall} _lastSetAttributeCall=${JSON.stringify(this._lastSetAttributeCall, null, 0)}`);
+         */
+        this._lastSetAttributeCall = this._lastSetAttributeCall || Object.create(null);
+        if (!this._inSetAttributeCall &&
+             (!Object.prototype.hasOwnProperty.call(this._lastSetAttributeCall, name) ||
+               this._lastSetAttributeCall[name] !== newValue)) {
+          if (this.attributeChangedCallback) {
+            this.attributeChangedCallback(name, oldValue, newValue);
+          }
         }
-        else if (!script.hasAttribute('loaderror')) {
-          // already loading
-          var anotherIntlLocaleLoadedBindThis = function (e) {
-            if (e.target === script) {
-              callback.call(this, locale);
-              e.target.removeEventListener('load', anotherIntlLocaleLoadedBindThis);
-              return false;
-            }
-          }.bind(this);
-          var anotherIntlLocaleLoadErrorBindThis = function (e) {
-            if (e.target === script) {
-              e.target.removeEventListener('error', anotherIntlLocaleLoadErrorBindThis);
-              locale = fallbackLanguages.shift();
-              if (!locale) {
-                locale = this.DEFAULT_LANG;
-              }
-              var fallbackSupport = Intl.NumberFormat.supportedLocalesOf(locale, { localeMatcher: 'lookup'});
-              if (fallbackSupport.length > 0) {
-                callback.call(this, locale);
-              }
-              else {
-                _setupIntlPolyfillLocale.call(this, locale, callback);
-              }
-              return false;
-            }
-          }.bind(this);
-          script.addEventListener('load', anotherIntlLocaleLoadedBindThis);
-          script.addEventListener('error', anotherIntlLocaleLoadErrorBindThis);
+        if (Object.prototype.hasOwnProperty.call(this._lastSetAttributeCall, name)) {
+          delete this._lastSetAttributeCall[name];
         }
         else {
-          var enSupport = Intl.NumberFormat.supportedLocalesOf(this.DEFAULT_LANG, { localeMatcher: 'lookup'});
-          if (enSupport.length > 0) {
-            callback.call(this, this.DEFAULT_LANG);
-          }
-          else {
-            _setupIntlPolyfillLocale.call(this, this.DEFAULT_LANG, callback);
-          }
+          this._lastSetAttributeCall[name] = newValue;
         }
-        return false;
+        break;
+      /* istanbul ignore next: type is always attributes */
+      default:
+        /* istanbul ignore next: type is always attributes */
+        break;
       }
-    }
+    }, this);
   }
-  return true;
 }
 
-/**
- * Enumerate fallback locales for the target locale.
- * 
- * Subset implementation of BCP47 (https://tools.ietf.org/html/bcp47).
- *
- * ### Examples:
- *
- *| Target Locale | Fallback 1 | Fallback 2 | Fallback 3 |
- *|:--------------|:-----------|:-----------|:-----------|
- *| ru            | N/A        | N/A        | N/A        |
- *| en-GB         | en         | N/A        | N/A        |
- *| en-Latn-GB    | en-GB      | en-Latn    | en         |
- *| fr-CA         | fr         | N/A        | N/A        |
- *| zh-Hans-CN    | zh-Hans    | zh         | N/A        |
- *| zh-CN         | zh-Hans    | zh         | N/A        |
- *| zh-TW         | zh-Hant    | zh         | N/A        |
- *
- * #### Note:
- *
- * For zh language, the script Hans or Hant is supplied as its default script when a country/region code is supplied.
- *
- * @param {string} lang Target locale.
- * @return {Array} List of fallback locales including the target locale at the index 0.
- */
-function _enumerateFallbackLanguages (lang) {
-  var result = [];
-  var parts;
-  var match;
-  var isExtLangCode = 0;
-  var extLangCode;
-  var isScriptCode = 0;
-  var scriptCode;
-  var isCountryCode = 0;
-  var countryCode;
-  var n;
-  /* istanbul ignore if: lang is always a non-null string */
-  if (!lang || lang.length === 0) {
-    result.push('');
-  }
-  else {
-    parts = lang.split(/[-_]/);
-    // normalize ISO-639-1 language codes
-    if (parts.length > 0 &&
-        parts[0].match(/^[A-Za-z]{2,3}$/)) {
-      // language codes have to be lowercased
-      // e.g. JA -> ja, FR -> fr
-      // TODO: normalize 3-letter codes to 2-letter codes
-      parts[0] = parts[0].toLowerCase();
-    }
-    // normalize ISO-639-3 extension language codes
-    if (parts.length >= 2 &&
-        parts[1].match(/^[A-Za-z]{3}$/) &&
-        !parts[1].match(/^[Cc][Hh][SsTt]$/)) { // exclude CHS,CHT
-      // extension language codes have to be lowercased
-      // e.g. YUE -> yue
-      isExtLangCode = 1;
-      extLangCode = parts[1] = parts[1].toLowerCase();
-    }
-    // normalize ISO-15924 script codes
-    if (parts.length >= isExtLangCode + 2 &&
-        (match = parts[isExtLangCode + 1].match(/^([A-Za-z])([A-Za-z]{3})$/))) {
-      // script codes have to be capitalized only at the first character
-      // e.g. HANs -> Hans, lAtN -> Latn
-      isScriptCode = 1;
-      scriptCode = parts[isExtLangCode + 1] = match[1].toUpperCase() + match[2].toLowerCase();
-    }
-    // normalize ISO-3166-1 country/region codes
-    if (parts.length >= isExtLangCode + isScriptCode + 2 &&
-        (match = parts[isExtLangCode + isScriptCode + 1].match(/^[A-Za-z0-9]{2,3}$/))) {
-      // country/region codes have to be capitalized
-      // e.g. cn -> CN, jP -> JP
-      isCountryCode = 1;
-      countryCode = parts[isExtLangCode + isScriptCode + 1] = match[0].toUpperCase();
-    }
-    // extensions have to be in lowercases
-    // e.g. U-cA-Buddhist -> u-ca-buddhist, X-LiNux -> x-linux
-    if (parts.length >= isExtLangCode + isScriptCode + isCountryCode + 2) {
-      for (n = isExtLangCode + isScriptCode + isCountryCode + 1; n < parts.length; n++) {
-        parts[n] = parts[n].toLowerCase();
-      }
-    }
-    // enumerate fallback languages
-    while (parts.length > 0) {
-      // normalize delimiters as -
-      // e.g. ja_JP -> ja-JP
-      if (!parts[parts.length - 1].match(/^[xu]$/)) {
-        result.push(parts.join('-'));
-      }
-      if (isScriptCode &&
-          isCountryCode &&
-          parts.length == isExtLangCode + isScriptCode + 2) {
-        // script code can be omitted to default
-        // e.g. en-Latn-GB -> en-GB, zh-Hans-CN -> zh-CN
-        parts.splice(isExtLangCode + isScriptCode, 1);
-        result.push(parts.join('-'));
-        parts.splice(isExtLangCode + isScriptCode, 0, scriptCode);
-      }
-      if (isExtLangCode &&
-          isCountryCode &&
-          parts.length == isExtLangCode + isScriptCode + 2) {
-        // ext lang code can be omitted to default
-        // e.g. zh-yue-Hans-CN -> zh-Hans-CN
-        parts.splice(isExtLangCode, 1);
-        result.push(parts.join('-'));
-        parts.splice(isExtLangCode, 0, extLangCode);
-      }
-      if (isExtLangCode &&
-          isScriptCode &&
-          parts.length == isExtLangCode + isScriptCode + 1) {
-        // ext lang code can be omitted to default
-        // e.g. zh-yue-Hans -> zh-Hans
-        parts.splice(isExtLangCode, 1);
-        result.push(parts.join('-'));
-        parts.splice(isExtLangCode, 0, extLangCode);
-      }
-      if (!isScriptCode &&
-          !isExtLangCode &&
-          isCountryCode &&
-          parts.length == 2) {
-        // default script code can be added in certain cases with country codes
-        // e.g. zh-CN -> zh-Hans-CN, zh-TW -> zh-Hant-TW
-        switch (result[result.length - 1]) {
-        case 'zh-CN':
-        case 'zh-CHS':
-          result.push('zh-Hans');
-          break;
-        case 'zh-TW':
-        case 'zh-SG':
-        case 'zh-HK':
-        case 'zh-CHT':
-          result.push('zh-Hant');
-          break;
-        default:
-          break;
-        }
-      }
-      parts.pop();
-    }
-  }
-  return result;
-}
+const formatCache = new Map();
 
-Polymer({
-  importMeta: import.meta,
-  is: 'i18n-number',
-  _template: (t => { t.setAttribute('strip-whitespace', ''); return t; })(html`<span id="number"></span>`),
+export class I18nNumber extends polyfill(HTMLElement) {
+  static get importMeta() {
+    return import.meta;
+  }
+
+  static get is() {
+    return 'i18n-number';
+  }
+
+  static get observedAttributes() {
+    return [ 'lang', 'options', 'offset' ];
+  }
+
+  __render() {
+    return html`<span id="number">${this.formatted || ''}</span>`;
+  }
 
   /**
    * Fired whenever the formatted text is rendered.
@@ -336,151 +158,156 @@ Polymer({
    * @event rendered
    */
 
-  properties: {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+
+    /**
+     * Default locale constant 'en'
+     */
+    this.DEFAULT_LANG = 'en';
     /**
      * The locale for the formatted number.
      * The typical value is bound to `{{effectiveLang}}` when the containing element has
      * `BehaviorsStore.I18nBehavior`.
      */
-    _lang: {
-      type: String,
-      value: 'en',
-      observer: '_langChanged',
-      reflectToAttribute: false
-    },
-
-    /**
-     * Options object for Intl.NumberFormat 
-     * (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat)
-     */
-    options: {
-      type: Object,
-      observer: '_optionsChanged',
-      notify: true
-    },
-
-    /**
-     * Raw string synchronized with textContent
-     */
-    raw: {
-      type: String,
-      observer: '_rawChanged'
-    },
-
+    this.lang = this.DEFAULT_LANG;
     /**
      * Offset for number
      *
      * Note: number = rawNumber - offset 
      */
-    offset: {
-      type: Number,
-      value: 0,
-      observer: '_offsetChanged'
-    },
-
+    this.offset = 0;
+    /**
+     * Raw string synchronized with textContent
+     */
+    //this.raw = undefined;
+    /**
+     * Options object for Intl.NumberFormat 
+     * (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat)
+     */
+    //this.options = undefined;
     /**
      * Raw number parsed from raw
      */
-    rawNumber: {
-      type: Number,
-      notify: true
-    },
-
+    //this.rawNumber = undefined;
     /**
      * Number calculated from rawNumber and offset
      */
-    number: {
-      type: Number,
-      notify: true
-    },
-
+    //this.number = undefined;
     /**
      * Formatted string rendered for UI
-     *
-     * Note:
-     *   - While Intl.js Polyfill locale module is being loaded, the value is set as `undefined` until load completion.
      */
-    formatted: {
-      type: String,
-      notify: true
-    }
-  },
-
-  observers: [
-    '_onOptionsPropertyChanged(options.*)'
-  ],
-
-  /**
-   * Default locale constant 'en'
-   */
-  DEFAULT_LANG: 'en',
-
-  /**
-   * Start loading Intl polyfill only once
-   */
-  registered: function () {
-    if (!_setupIntlPolyfillCalled) {
-      _setupIntlPolyfillCalled = true;
-      _setupIntlPolyfill.call(this);
-    }
-  },
-
-  ready: function () {
+    //this.formatted = undefined;
     this._setupObservers();
     this.raw = this.textNode.data;
-    if (!this.lang) {
-      // Polyfill non-functional default value for lang property in Safari 7
-      this.lang = this.DEFAULT_LANG;
-    }
-  },
+  }
 
-  attached: function () {
+  attributeChangedCallback(name, oldValue, newValue) {
+    switch (name) {
+    case 'lang':
+      this._langChanged(newValue);
+      break;
+    case 'options':
+      try {
+        this.options = JSON.parse(newValue);
+      }
+      catch (ex) {
+        this.options = undefined;
+      }
+      break;
+    case 'offset':
+      this.offset = parseInt(newValue);
+      break;
+    /* istanbul ignore next */
+    default:
+      /* istanbul ignore next */
+      break;
+    }
+  }
+
+  get options() {
+    return this._options;
+  }
+
+  set options(value) {
+    this._optionsChanged(this._options = value);
+  }
+
+  get raw() {
+    return this._raw;
+  }
+
+  set raw(value) {
+    this._rawChanged(this._raw = value);
+  }
+
+  get offset() {
+    return this._offset;
+  }
+
+  set offset(value) {
+    this._offsetChanged(this._offset = value);
+  }
+
+  connectedCallback() {
     this.raw = this.textNode.data;
-  },
+    this.invalidate();
+  }
 
   /**
    * Set up observers of textContent mutations
    */
-  _setupObservers: function () {
+  _setupObservers() {
     let i = 0;
     do {
-      this.textNode = dom(this).childNodes[i++];
+      this.textNode = this.childNodes[i++];
       if (!this.textNode) {
-        this.textNode = dom(this).childNodes[0];
+        this.textNode = this.childNodes[0];
         break;
       }
     }
     while (this.textNode.nodeType !== this.textNode.TEXT_NODE);
     if (!this.textNode) {
-      dom(this).appendChild(document.createTextNode(''));
-      this.textNode = dom(this).childNodes[0];
+      this.appendChild(document.createTextNode(''));
+      this.textNode = this.childNodes[0];
     }
     this.observer = new MutationObserver(this._textMutated.bind(this));
     this.observer.observe(this.textNode, { characterData: true });
-    this.observer.observe(this, { attributes: true, attributeFilter: [ 'lang' ] });
-    this.nodeObserver = dom(this).observeNodes(function (info) {
-      let i = 0;
-      do {
-        if (info.addedNodes[i] &&
-            info.addedNodes[i].nodeType === info.addedNodes[i].TEXT_NODE) {
-          this.textNode = info.addedNodes[i];
-          this.raw = this.textNode.data;
-          //console.log('i18n-number: text node added with ' + this.raw);
-          this.observer.observe(this.textNode, { characterData: true });
+    this.nodeObserver = new MutationObserver(function (mutations) {
+      mutations.forEach(function(mutation) {
+        switch (mutation.type) {
+        case 'childList':
+          let i = 0;
+          do {
+            if (mutation.addedNodes[i] &&
+                mutation.addedNodes[i].nodeType === mutation.addedNodes[i].TEXT_NODE) {
+              this.textNode = mutation.addedNodes[i];
+              this.raw = this.textNode.data;
+              //console.log('i18n-number: text node added with ' + this.raw);
+              this.observer.observe(this.textNode, { characterData: true });
+              break;
+            }
+            i++;
+          }
+          while (i < mutation.addedNodes.length);
+          break;
+        /* istanbul ignore next */
+        default:
+          /* istanbul ignore next: mutation.type is characterData or attributes */
           break;
         }
-        i++;
-      }
-      while (i < info.addedNodes.length);
+      }, this);
     }.bind(this));
-  },
+    this.nodeObserver.observe(this, { childList: true });
+  }
 
   /**
    * MutationObserver callback of the child text node to re-render on text mutations.
    *
    * @param {Array} mutations Array of MutationRecord (https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver).
    */
-  _textMutated: function (mutations) {
+  _textMutated(mutations) {
     mutations.forEach(function(mutation) {
       switch (mutation.type) {
       case 'characterData':
@@ -489,24 +316,20 @@ Polymer({
           this.raw = mutation.target.data;
         }
         break;
-      case 'attributes':
-        if (mutation.attributeName === 'lang') {
-          this._lang = this.lang;
-        }
-        break;
+      /* istanbul ignore next: mutation.type is characterData */
       default:
-        /* istanbul ignore next: mutation.type is characterData or attributes */
+        /* istanbul ignore next: mutation.type is characterData */
         break;
       }
     }, this);
-  },
+  }
 
   /**
    * Observer of `raw` property to re-render the formatted number.
    *
    * @param {string} raw New raw number string.
    */
-  _rawChanged: function (raw) {
+  _rawChanged(raw) {
     if (this.textNode) {
       if (raw !== this.textNode.data) {
         this.textNode.data = raw;
@@ -514,14 +337,14 @@ Polymer({
       //console.log('i18n-number: _rawChanged: raw = ' + raw);
       this._render(this.lang, this.options, raw, this.offset);
     }
-  },
+  }
 
   /**
    * Observer of `lang` property to re-render the formatted number.
    *
    * @param {string} lang New locale.
    */
-  _langChanged: function (lang) {
+  _langChanged(lang) {
     if (!lang) {
       this.lang = this.DEFAULT_LANG;
       lang = this.lang;
@@ -530,41 +353,49 @@ Polymer({
       //console.log('i18n-number: _langChanged: lang = ' + lang);
       this._render(lang, this.options, this.raw, this.offset);
     }
-  },
+  }
 
   /**
    * Observer of `options` property to re-render the formatted number.
    *
    * @param {Object} options New options for Intl.NumberFormat.
    */
-  _optionsChanged: function (options) {
+  _optionsChanged(options) {
     if (this.textNode) {
       //console.log('i18n-number: _optionsChanged: options = ' + JSON.stringify(options));
       this._render(this.lang, options, this.raw, this.offset);
     }
-  },
+  }
+
+  /**
+   * Partially emulates notifyPath() in Polymer library
+   * Just calls _onOptionsPropertyChanged() to re-render
+   */
+  notifyPath(path, value) {
+    this._onOptionsPropertyChanged();
+  }
 
   /**
    * Observer of `options` sub-properties to re-render the formatted number.
    */
-  _onOptionsPropertyChanged: function (/* changeRecord */) {
+  _onOptionsPropertyChanged(/* changeRecord */) {
     if (this.textNode) {
       //console.log('_onOptionsPropertyChanged: path = ' + changeRecord.path + ' value = ' + JSON.stringify(changeRecord.value));
       this._render(this.lang, this.options, this.raw, this.offset);
     }
-  },
+  }
 
   /**
    * Observer of `offset` property to re-render the formatted number.
    *
    * @param {number} offset New offset.
    */
-  _offsetChanged: function (offset) {
+  _offsetChanged(offset) {
     if (this.textNode) {
       //console.log('i18n-number: _offsetChanged: offset = ' + offset);
       this._render(this.lang, this.options, this.raw, offset);
     }
-  },
+  }
 
   /**
    * Get a cached Intl.NumberFormat object
@@ -581,7 +412,7 @@ Polymer({
       formatCache.set(formatId, formatObject);
     }
     return formatObject;
-  },
+  }
 
   /**
    * Formats the number
@@ -591,43 +422,17 @@ Polymer({
    * @param {number} number Number to format.
    * @return {string} Formatted number string.
    */
-  _formatNumber: function (lang, options, number) {
+  _formatNumber(lang, options, number) {
     if (!lang) {
       lang = this.DEFAULT_LANG;
     }
-    switch (intlLibraryLoadingStatus) {
-    case 'loaded':
-    case 'loading':
-    default:
-      try {
-        if (_setupIntlPolyfillLocale.call(this, lang, function (locale) {
-          this.effectiveLang = locale;
-          this._render.call(this, locale, this.options, this.raw, this.offset);
-        }.bind(this))) {
-          return this._getNumberFormatObject(lang, options).format(number);
-        }
-        else {
-          // waiting for callback
-          return undefined;
-        }
-      }
-      catch (e) {
-        return number.toString();
-      }
-      /* istanbul ignore next: unreachable code due to returns in the same case */
-      break;
-    case 'native':
-      // native
-      try {
-        return this._getNumberFormatObject(lang, options).format(number);
-      }
-      catch (e) {
-        return number.toString();
-      }
-      /* istanbul ignore next: unreachable code due to returns in the same case */
-      break;
+    try {
+      return this._getNumberFormatObject(lang, options).format(number);
     }
-  },
+    catch (e) {
+      return number.toString();
+    }
+  }
 
   /**
    * Renders the formatted number
@@ -637,7 +442,7 @@ Polymer({
    * @param {string} raw Raw number string.
    * @param {number} offset Offset for number.
    */
-  _render: function (lang, options, raw, offset) {
+  _render(lang, options, raw, offset) {
     // TODO: rendering may be done redundantly on property initializations
     raw = raw.trim();
     if (!raw && !this.formatted) {
@@ -654,12 +459,26 @@ Polymer({
       this.number = undefined;
       this.formatted = '';
     }
-    this.$.number.textContent = this.formatted ? this.formatted : '';
+    this.invalidate();
     //console.log('i18n-number: _render ' + this.formatted);
-    if (typeof this.formatted !== 'undefined') {
-      this.fire('rendered');
+  }
+
+  /**
+   * Renders shadowRoot with this.__render()
+   */
+  invalidate() {
+    if (!this.needsRender) {
+      this.needsRender = true;
+      Promise.resolve().then(() => {
+        this.needsRender = false;
+        render(this.__render(), this.shadowRoot);
+        //console.log(`rendered "${this.formatted}"`);
+        if (typeof this.formatted !== 'undefined') {
+          this.dispatchEvent(new Event('rendered', { bubbles: true, cancelable: false, composed: true }));
+        }
+      });
     }
-  },
+  }
 
   /**
    * Renders the formatted number with the current parameters
@@ -677,7 +496,8 @@ Polymer({
    *   and thus no explicit call of `render()` or `notifyPath()` is
    *   required.
    */
-  render: function () {
+  render() {
     this._render(this.lang, this.options, this.raw, this.offset);
   }
-});
+}
+customElements.define(I18nNumber.is, I18nNumber);
