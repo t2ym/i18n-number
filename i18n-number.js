@@ -62,7 +62,7 @@ export class I18nNumber extends polyfill(HTMLElement) {
      * The typical value is bound to `{{effectiveLang}}` when the containing element has
      * `BehaviorsStore.I18nBehavior`.
      */
-    this.lang = this.DEFAULT_LANG;
+    Promise.resolve().then(() => this.lang = this.DEFAULT_LANG);
     /**
      * Offset for number
      *
@@ -236,7 +236,7 @@ export class I18nNumber extends polyfill(HTMLElement) {
    * @param {string} lang New locale.
    */
   _langChanged(lang) {
-    if (!lang) {
+    if (!lang || lang === 'null') {
       this.lang = this.DEFAULT_LANG;
       lang = this.lang;
     }
@@ -296,6 +296,9 @@ export class I18nNumber extends polyfill(HTMLElement) {
    * @return {Object} Intl.NumberFormat object.
    */
   _getNumberFormatObject(lang, options) {
+    if (!lang || lang === 'null') {
+      lang = this.DEFAULT_LANG;
+    }
     let formatId = lang + JSON.stringify(options);
     let formatObject = formatCache.get(formatId);
     if (!formatObject) {
