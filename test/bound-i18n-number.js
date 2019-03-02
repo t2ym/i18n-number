@@ -48,5 +48,6 @@ Polymer({
     this.$.num.setAttribute('attr', 'value');
     this.$.num.setAttribute('options', '<');
     this.$.num.constructor.importMeta;
+    this.$.num.root;
   }
 });

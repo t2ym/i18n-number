@@ -117,6 +117,13 @@ export class I18nNumber extends polyfill(HTMLElement) {
     }
   }
 
+  /**
+   * root property to imitate a Polymer element
+   */
+  get root() {
+    return this.shadowRoot;
+  }
+
   get options() {
     return this._options;
   }
