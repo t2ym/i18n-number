@@ -51,8 +51,6 @@ export class I18nNumber extends polyfill(HTMLElement) {
 
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
-
     /**
      * Default locale constant 'en'
      */
@@ -90,8 +88,6 @@ export class I18nNumber extends polyfill(HTMLElement) {
      * Formatted string rendered for UI
      */
     //this.formatted = undefined;
-    this._setupObservers();
-    this.raw = this.textNode.data;
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -149,6 +145,9 @@ export class I18nNumber extends polyfill(HTMLElement) {
   }
 
   connectedCallback() {
+    if (!this.observer) {
+      this._setupObservers();
+    }
     this.raw = this.textNode.data;
     this.invalidate();
   }
@@ -372,6 +371,9 @@ export class I18nNumber extends polyfill(HTMLElement) {
       this.needsRender = true;
       Promise.resolve().then(() => {
         this.needsRender = false;
+        if (!this.shadowRoot) {
+          this.attachShadow({ mode: 'open' });
+        }
         render(this.__render(), this.shadowRoot);
         //console.log(`rendered "${this.formatted}"`);
         if (typeof this.formatted !== 'undefined') {
