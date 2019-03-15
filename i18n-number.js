@@ -27,10 +27,6 @@ import { html, render } from 'lit-html/lit-html.js';
 const formatCache = new Map();
 
 export class I18nNumber extends polyfill(HTMLElement) {
-  static get importMeta() {
-    return import.meta;
-  }
-
   static get is() {
     return 'i18n-number';
   }
