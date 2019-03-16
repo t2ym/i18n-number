@@ -56,7 +56,7 @@ export class I18nNumber extends polyfill(HTMLElement) {
      * The typical value is bound to `{{effectiveLang}}` when the containing element has
      * `BehaviorsStore.I18nBehavior`.
      */
-    Promise.resolve().then(() => this.lang = this.DEFAULT_LANG);
+    //this.lang = this.DEFAULT_LANG; // put off to connectedCallback
     /**
      * Offset for number
      *
@@ -141,6 +141,9 @@ export class I18nNumber extends polyfill(HTMLElement) {
   }
 
   connectedCallback() {
+    if (!this.lang) {
+      this.lang = this.DEFAULT_LANG;
+    }
     if (!this.observer) {
       this._setupObservers();
     }
