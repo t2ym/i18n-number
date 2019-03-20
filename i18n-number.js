@@ -116,6 +116,12 @@ export class I18nNumber extends polyfill(HTMLElement) {
     return this.shadowRoot;
   }
 
+  /**
+   * options property for options object for Intl.NumberFormat
+   * (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat)
+   *
+   * Note: _optionsChanged() is called on every change
+   */
   get options() {
     return this._options;
   }
@@ -124,6 +130,11 @@ export class I18nNumber extends polyfill(HTMLElement) {
     this._optionsChanged(this._options = value);
   }
 
+  /**
+   * raw property to store a raw number string from textContent
+   *
+   * Note: _rawChanged() is called on every change
+   */
   get raw() {
     return this._raw;
   }
@@ -132,6 +143,13 @@ export class I18nNumber extends polyfill(HTMLElement) {
     this._rawChanged(this._raw = value);
   }
 
+  /**
+   * Offset for number
+   *
+   * Note:
+   *  - Calculation: number = rawNumber - offset
+   *  - _offsetChanged() is called on every change
+   */
   get offset() {
     return this._offset;
   }
@@ -140,6 +158,15 @@ export class I18nNumber extends polyfill(HTMLElement) {
     this._offsetChanged(this._offset = value);
   }
 
+  /**
+   * connectedCallback for custom elements
+   *
+   * Tasks:
+   *  - Sets this.lang if not set
+   *  - Sets up observers if not set up
+   *  - Sets this.raw from this.textNode.data
+   *  - Triggers rendering
+   */
   connectedCallback() {
     if (!this.lang) {
       this.lang = this.DEFAULT_LANG;
@@ -152,7 +179,7 @@ export class I18nNumber extends polyfill(HTMLElement) {
   }
 
   /**
-   * Set up observers of textContent mutations
+   * Sets up observers of textContent mutations
    */
   _setupObservers() {
     let i = 0;
@@ -294,7 +321,7 @@ export class I18nNumber extends polyfill(HTMLElement) {
   }
 
   /**
-   * Get a cached Intl.NumberFormat object
+   * Gets a cached Intl.NumberFormat object
    *
    * @param {string} lang Locale for formatting.
    * @param {Object} options Options for Intl.NumberFormat.
