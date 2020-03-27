@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.0.1] 2020-3-27
+### Added
+
+### Changed
+- Update package-lock.json
+- Update test environments for Travis CI
+
+### Removed
+- Support for rare locales like zh-yue-Hans-CN, zh-CHS
+- test: Remove Travis CI tests on SauceLabs to avoid connection refused errors
+  - Tests pass from local to SauceLabs
+
 ## [4.0.0] 2019-3-20
 ### Added
 - Depending on `lit-html@^1.0.0`
