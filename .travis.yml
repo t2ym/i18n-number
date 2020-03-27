@@ -3,7 +3,7 @@ branches:
   except:
     - gh-pages
 sudo: required
-dist: trusty
+dist: bionic
 before_script:
   - 'export PATH=$PWD/node_modules/.bin:$PATH'
 env:
