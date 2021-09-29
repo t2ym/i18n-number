@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.0.0] 2021-9-28
+### Added
+- Support lit-html@2.0.0
+
+### Changed
+
+### Removed
+
 ## [4.0.1] 2020-3-27
 ### Added
 
